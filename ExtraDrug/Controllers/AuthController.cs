@@ -5,6 +5,7 @@ using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Controllers.Attributes;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ExtraDrug.Controllers;
 
@@ -23,7 +24,7 @@ public class AuthController : ControllerBase
     [ValidateModel]
     public async Task<IActionResult> RegisterUser([FromBody] CreateUserResource cr)
     {
-       
+
         var res = await authService.RegisterNewUserAsync(cr.MapToModel());
         if (!res.IsSucceeded || res.User is null)
         {
@@ -35,11 +36,11 @@ public class AuthController : ControllerBase
                });
         }
 
-        
-        return Created("",new AuthResource()
+
+        return Created("", new AuthResource()
         {
             Username = res.User.UserName,
-            Email = res.User.Email ,
+            Email = res.User.Email,
             Roles = res.UserRoles,
             UserId = res.User.Id,
             Token = res.JwtToken,
@@ -75,6 +76,7 @@ public class AuthController : ControllerBase
 
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost("add-role-to-user")]
     [ValidateModel]
     public async Task<IActionResult> AddRoleToUser([FromBody] AddRoleToUserResource ar)
@@ -93,6 +95,7 @@ public class AuthController : ControllerBase
         return Ok(new SuccessResponce<object>(){ Message = "Role is added to the user"});
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost("remove-role-from-user")]
     [ValidateModel]
     public async Task<IActionResult> RemoveRoleFromUser([FromBody] AddRoleToUserResource ar)
@@ -111,6 +114,7 @@ public class AuthController : ControllerBase
         return Ok(new SuccessResponce<object>() { Message = "Role is removed from the user" });
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("roles")]
     public async Task<IActionResult> GetAllRoles()
     {
