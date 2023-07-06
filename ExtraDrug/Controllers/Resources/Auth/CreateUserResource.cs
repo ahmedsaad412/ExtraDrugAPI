@@ -20,8 +20,6 @@ public class CreateUserResource
 
     public string Password { get; set; } = "";
 
-
-
     public ApplicationUser MapToModel()
     {
         return new ApplicationUser(){ 

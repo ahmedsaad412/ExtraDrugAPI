@@ -19,20 +19,12 @@ public class AuthController : ControllerBase
         authService = _authService;
     }
 
-    [HttpPost("/register")]
+    [HttpPost("register")]
     [ValidateModel]
     public async Task<IActionResult> RegisterUser([FromBody] CreateUserResource cr)
     {
-        //TODO:: change the responce of validation to use this code. 
-        if (!ModelState.IsValid)
-            return BadRequest(
-                new ErrorResponce()
-                {
-                    Errors = ModelState.SelectMany(e => e.Value.Errors.Select(e => e.ErrorMessage)).ToList(),
-                    Message = "Invalid User Data."
-                });
-
-        var res = await authService.RegisterNewUser(cr.MapToModel());
+       
+        var res = await authService.RegisterNewUserAsync(cr.MapToModel());
         if (!res.IsSucceeded || res.User is null)
         {
             return BadRequest(
@@ -49,8 +41,84 @@ public class AuthController : ControllerBase
             Username = res.User.UserName,
             Email = res.User.Email ,
             Roles = res.UserRoles,
+            UserId = res.User.Id,
             Token = res.JwtToken,
             ExpiresOn = res.ExpiresOn
+        });
+    }
+
+    [HttpPost("login")]
+    [ValidateModel]
+    public async Task<IActionResult> LoginUser([FromBody] LoginResource lr)
+    {
+        var res = await authService.LoginAsync(lr.MapToModel());
+        if (!res.IsSucceeded || res.User is null)
+        {
+            return BadRequest(
+               new ErrorResponce()
+               {
+                   Errors = res.Errors,
+                   Message = "Authentication Error: Invalid User Data."
+               });
+        }
+
+
+        return Ok(new AuthResource()
+        {
+            Username = res.User.UserName,
+            UserId = res.User.Id,
+            Email = res.User.Email,
+            Roles = res.UserRoles,
+            Token = res.JwtToken,
+            ExpiresOn = res.ExpiresOn
+        });
+
+    }
+
+    [HttpPost("add-role-to-user")]
+    [ValidateModel]
+    public async Task<IActionResult> AddRoleToUser([FromBody] AddRoleToUserResource ar)
+    {
+        var res = await authService.AddRoleToUser(ar.UserId , ar.Role);
+        if (!res.IsSucceeded )
+        {
+            return BadRequest(
+               new ErrorResponce()
+               {
+                   Errors = res.Errors,
+                   Message = "Invalid User Or Role Data"
+               });
+        }
+
+        return Ok(new SuccessResponce<object>(){ Message = "Role is added to the user"});
+    }
+
+    [HttpPost("remove-role-from-user")]
+    [ValidateModel]
+    public async Task<IActionResult> RemoveRoleFromUser([FromBody] AddRoleToUserResource ar)
+    {
+        var res = await authService.RemoveRoleFromUser(ar.UserId, ar.Role);
+        if (!res.IsSucceeded)
+        {
+            return BadRequest(
+               new ErrorResponce()
+               {
+                   Errors = res.Errors,
+                   Message = "Invalid User Or Role Data"
+               });
+        }
+
+        return Ok(new SuccessResponce<object>() { Message = "Role is removed from the user" });
+    }
+
+    [HttpGet("roles")]
+    public async Task<IActionResult> GetAllRoles()
+    {
+        var roles =  await authService.GetAllRoles();
+        return Ok(new SuccessResponce<ICollection<string?>?>()
+        {
+            Message = "All Roles",
+            Data = roles
         });
     }
 }
