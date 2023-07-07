@@ -1,13 +1,18 @@
-﻿using ExtraDrug.Controllers.Resources;
+﻿using ExtraDrug.Controllers.Attributes;
+using ExtraDrug.Controllers.Resources;
 using ExtraDrug.Controllers.Resources.Drug;
 using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace ExtraDrug.Controllers;
 [Route("api/drug-categories")]
 [ApiController]
+[ValidateModel]
+[Authorize(Roles = "Admin")]
 public class DrugCategoryController : ControllerBase
 {
     private readonly IDrugCategoryRepo drugCategoryRepo;
@@ -17,15 +22,30 @@ public class DrugCategoryController : ControllerBase
         drugCategoryRepo = _drugCategoryRepo;
     }
     [HttpPost]
-    public async Task<IActionResult> AddDrugCategory(NameAndIdResource drugCategoryResource)
+    public async Task<IActionResult> AddDrugCategory([FromBody] NameAndIdResource drugCategoryResource)
     {
-
-        return Ok();
+        var category = await drugCategoryRepo.AddDrugCategory(drugCategoryResource.MapToModel<DrugCategory>());
+        return Created("",new SuccessResponce<NameAndIdResource>(){
+            Message = "Created Successfuly",
+            Data = NameAndIdResource.MapToResource(category),
+            Meta = null
+        });
     }
-    [HttpPut]
-    public async Task<IActionResult> EditDrugCategory()
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> EditDrugCategory([FromRoute] int id ,[FromBody] NameAndIdResource drugCategoryResource)
     {
-        return Ok();
+        var category = await drugCategoryRepo.UpdateDrugCategory(id,drugCategoryResource.MapToModel<DrugCategory>());
+        if (category is null) return BadRequest(new ErrorResponce()
+            {
+                Message="Category Not Found",
+                Errors = new string[] { "Category Id Is Invalid" }
+            });
+        return Ok(new SuccessResponce<NameAndIdResource>()
+        {
+            Message = "Updated Successfuly",
+            Data = NameAndIdResource.MapToResource(category),
+            Meta = null
+        });
     }
 
 

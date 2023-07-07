@@ -37,6 +37,8 @@ public class Program
         // Defined services 
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IDrugCategoryRepo, DrugCategoryRepo>();
+        builder.Services.AddScoped<IDrugTypeRepo,DrugTypeRepo>();
+
 
         //defined filters 
         builder.Services.AddScoped<ValidateModelAttribute>();
