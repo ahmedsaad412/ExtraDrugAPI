@@ -11,6 +11,7 @@ using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Persistence.Services;
 using ExtraDrug.Controllers.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using ExtraDrug.Persistence.Repositories;
 
 namespace ExtraDrug;
 
@@ -35,6 +36,7 @@ public class Program
 
         // Defined services 
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IDrugCategoryRepo, DrugCategoryRepo>();
 
         //defined filters 
         builder.Services.AddScoped<ValidateModelAttribute>();

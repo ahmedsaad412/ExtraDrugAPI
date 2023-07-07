@@ -14,5 +14,33 @@ public class AppDbContext:IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        builder.Entity<Drug>()
+            .HasOne(d => d.Company)
+            .WithMany(c => c.Drugs)
+            .HasForeignKey(d => d.CompanyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Drug>()
+            .HasOne(d => d.DrugCategory)
+            .WithMany(c => c.Drugs)
+            .HasForeignKey(d => d.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Drug>()
+            .HasOne(d => d.DrugType)
+            .WithMany(t => t.Drugs)
+            .HasForeignKey(d => d.TypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+        builder.Entity<Drug>()
+            .HasMany(d => d.EffectiveMatrials)
+            .WithMany(em => em.InDrugs);
+
     }
+    public virtual DbSet<Drug> Drugs { get; set; }
+    public virtual DbSet<DrugCategory> DrugCategories { get; set; }
+    public virtual DbSet<DrugCompany> DrugCompanies { get; set; }
+    public virtual DbSet<DrugType> DrugTypes { get; set; }
+    public virtual DbSet<EffectiveMatrials> EffectiveMatrials { get; set; }
 }
