@@ -4,6 +4,7 @@ namespace ExtraDrug.Core.Models;
 
 public class EffectiveMatrials
 {
+    public int assem { get; set; }
     public int Id { get; set; }
     [StringLength(150)]
     public string Name { get; set; }
