@@ -22,7 +22,7 @@ public class DrugTypesController : ControllerBase
         drugTypeRepo = _drugTypeRepo;
     }
     [HttpPost]
-    public async Task<IActionResult> AddDrugCategory([FromBody] NameAndIdResource drugTypeResource)
+    public async Task<IActionResult> AddDrugType([FromBody] NameAndIdResource drugTypeResource)
     {
         var type = await drugTypeRepo.AddDrugType(drugTypeResource.MapToModel<DrugType>());
         return Created("",new SuccessResponce<NameAndIdResource>(){
@@ -32,7 +32,7 @@ public class DrugTypesController : ControllerBase
         });
     }
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> EditDrugCategory([FromRoute] int id ,[FromBody] NameAndIdResource drugTypeResource)
+    public async Task<IActionResult> EditDrugType([FromRoute] int id ,[FromBody] NameAndIdResource drugTypeResource)
     {
         var type = await drugTypeRepo.UpdateDrugType(id, drugTypeResource.MapToModel<DrugType>());
         if (type is null) return BadRequest(new ErrorResponce()
@@ -50,7 +50,7 @@ public class DrugTypesController : ControllerBase
 
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteDrugCategory([FromRoute] int id)
+    public async Task<IActionResult> DeleteDrugType([FromRoute] int id)
     {
         var type = await drugTypeRepo.DeleteDrugType(id);
         if (type is null) return BadRequest(new ErrorResponce()
@@ -69,7 +69,7 @@ public class DrugTypesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllDrugCategories()
+    public async Task<IActionResult> GetAllDrugType()
     {
         var types = await drugTypeRepo.GetAllDrugType();
         return Ok(new SuccessResponce<ICollection<NameAndIdResource>>()

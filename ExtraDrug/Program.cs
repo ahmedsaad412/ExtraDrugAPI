@@ -38,6 +38,7 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IDrugCategoryRepo, DrugCategoryRepo>();
         builder.Services.AddScoped<IDrugTypeRepo,DrugTypeRepo>();
+        builder.Services.AddScoped<IDrugCompanyRepo,DrugCompanyRepo>();
 
 
         //defined filters 

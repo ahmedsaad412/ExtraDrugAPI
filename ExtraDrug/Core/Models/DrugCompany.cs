@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ExtraDrug.Core.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExtraDrug.Core.Models;
 
-public class DrugCompany
+public class DrugCompany:INameAndId
 {
     public int Id { get; set; }
     [StringLength(50)]
