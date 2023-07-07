@@ -27,6 +27,8 @@ public class DrugCategoryController : ControllerBase
     {
         return Ok();
     }
+
+
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrugCategory([FromRoute]int id)
     {
@@ -36,7 +38,14 @@ public class DrugCategoryController : ControllerBase
             Message="Category Id Is Invalid",
             Errors = new string[] { "Category Id Is Invalid" }
         });
-        return Ok();
+        return Ok(
+                new SuccessResponce<NameAndIdResource>()
+                {
+                    Message= "Deleted Successfuly",
+                    Data =  NameAndIdResource.MapToResource(category),
+                    Meta = null
+                }
+            );
     }
 
     [HttpGet]
