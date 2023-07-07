@@ -39,6 +39,8 @@ public class Program
         builder.Services.AddScoped<IDrugCategoryRepo, DrugCategoryRepo>();
         builder.Services.AddScoped<IDrugTypeRepo,DrugTypeRepo>();
         builder.Services.AddScoped<IDrugCompanyRepo,DrugCompanyRepo>();
+        builder.Services.AddScoped<IDrugRepo,DrugRepo>();
+
 
 
         //defined filters 

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ExtraDrug.Core.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExtraDrug.Core.Models;
 
-public class EffectiveMatrials
+public class EffectiveMatrial:INameAndId
 {
     public int Id { get; set; }
     [StringLength(150)]

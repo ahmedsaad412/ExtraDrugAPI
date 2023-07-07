@@ -20,6 +20,6 @@ public class Drug
     public DrugType? DrugType { get; set; }
     public int  CategoryId { get; set; }
     public DrugCategory? DrugCategory { get; set; }
-    public ICollection<EffectiveMatrials> EffectiveMatrials { get; set; } = new List<EffectiveMatrials>();
+    public ICollection<EffectiveMatrial> EffectiveMatrials { get; set; } = new List<EffectiveMatrial>();
 
 }

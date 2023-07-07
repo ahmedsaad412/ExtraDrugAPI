@@ -1,7 +1,7 @@
 ﻿using ExtraDrug.Core.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
-namespace ExtraDrug.Controllers.Resources.Drug;
+namespace ExtraDrug.Controllers.Resources.DrugResources;
 
 public class NameAndIdResource
 {

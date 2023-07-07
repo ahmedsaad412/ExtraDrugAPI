@@ -1,6 +1,6 @@
 ﻿using ExtraDrug.Controllers.Attributes;
 using ExtraDrug.Controllers.Resources;
-using ExtraDrug.Controllers.Resources.Drug;
+using ExtraDrug.Controllers.Resources.DrugResources;
 using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
 using Microsoft.AspNetCore.Authorization;

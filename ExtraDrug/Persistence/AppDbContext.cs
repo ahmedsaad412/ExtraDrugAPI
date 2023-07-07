@@ -42,5 +42,5 @@ public class AppDbContext:IdentityDbContext<ApplicationUser>
     public virtual DbSet<DrugCategory> DrugCategories { get; set; }
     public virtual DbSet<DrugCompany> DrugCompanies { get; set; }
     public virtual DbSet<DrugType> DrugTypes { get; set; }
-    public virtual DbSet<EffectiveMatrials> EffectiveMatrials { get; set; }
+    public virtual DbSet<EffectiveMatrial> EffectiveMatrials { get; set; }
 }
