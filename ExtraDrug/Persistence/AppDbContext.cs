@@ -37,6 +37,10 @@ public class AppDbContext:IdentityDbContext<ApplicationUser>
             .HasMany(d => d.EffectiveMatrials)
             .WithMany(em => em.InDrugs);
 
+        builder.Entity<ApplicationUser>()
+            .HasIndex(u => u.PhoneNumber)
+            .IsUnique();
+            
     }
     public virtual DbSet<Drug> Drugs { get; set; }
     public virtual DbSet<DrugCategory> DrugCategories { get; set; }

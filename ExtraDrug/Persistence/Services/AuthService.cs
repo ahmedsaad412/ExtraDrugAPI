@@ -36,6 +36,12 @@ public class AuthService : IAuthService
             return new AuthResult() { IsSucceeded = false, Errors = new string[] { "This Username is Already Used." } };
         }
 
+        if (user.PhoneNumber is null || 
+            await userManager.Users.SingleOrDefaultAsync(u => u.PhoneNumber != null && u.PhoneNumber.Equals(user.PhoneNumber)) is not null)
+        {
+            return new AuthResult() { IsSucceeded = false, Errors = new string[] { "This Phone Number is Already Used." } };
+        }
+
         if (user.Password is null) return new AuthResult() { IsSucceeded = false, Errors = new string[] { "Password can't be empty." } };
 
         var res = await userManager.CreateAsync(user, user.Password);
