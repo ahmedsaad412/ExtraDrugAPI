@@ -80,7 +80,40 @@ public class DrugRepo : IDrugRepo
     {
         var drug = await GetDrugById(id, includeData: true);
         if (drug == null) return null;
-       
+
+
+        drug.Ar_Name = d.Ar_Name;
+        drug.En_Name = d.En_Name;
+        drug.Parcode= d.Parcode;
+        drug.Purpose = d.Purpose;
+        drug.IsTradingPermitted = d.IsTradingPermitted;
+        drug.CategoryId = d.CategoryId;
+        drug.CompanyId = d.CompanyId;
+        drug.TypeId = d.TypeId;
+        drug.EffectiveMatrials.Clear();
+        
+        foreach (var ef in d.EffectiveMatrials)
+        {
+            if (ef is null) continue;
+
+            if (ef.Id == 0)
+            {
+                ctx.EffectiveMatrials.Add(ef);
+                ef.InDrugs.Add(drug);
+            }
+            else
+            {
+                var ef_from_db = await ctx.EffectiveMatrials.FindAsync(ef.Id);
+                ef_from_db?.InDrugs.Add(drug);
+            }
+
+        }
+
+        await ctx.SaveChangesAsync();
+        await ctx.Entry(drug).Reference(d => d.Company).LoadAsync();
+        await ctx.Entry(drug).Reference(d => d.DrugCategory).LoadAsync();
+        await ctx.Entry(drug).Reference(d => d.DrugType).LoadAsync();
+        await ctx.Entry(drug).Collection(d => d.EffectiveMatrials).LoadAsync();
         return drug;
     }
 }

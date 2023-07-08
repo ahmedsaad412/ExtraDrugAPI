@@ -94,10 +94,27 @@ public class DrugController : ControllerBase
         });
     }
 
-    [HttpPut]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateDrug([FromRoute] int id , [FromBody] SaveDrugResource sDrugR )
     {
-        return Ok();
+        var drug = await drugRepo.UpdateDrug(id, sDrugR.MapToModel());
+        if (drug is null)
+        {
+            return NotFound(new ErrorResponce()
+            {
+                Message = "Drug Not Found",
+                Errors = new[] { "Drug Not Found" }
+            });
+        }
+        else
+        {
+            return Ok(new SuccessResponce<DrugResource>()
+            {
+                Message = "Drug Updated",
+                Data = DrugResource.MapToResource(drug),
+                Meta = null,
+            });
+        }
     }
 }
  
