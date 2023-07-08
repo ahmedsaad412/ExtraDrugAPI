@@ -61,7 +61,7 @@ public class DrugRepo : IDrugRepo
 
     public async Task<Drug?> GetDrugById(int id , bool includeData)
     {
-        if(includeData)
+        if(!includeData)
         {
             return await ctx.Drugs.SingleOrDefaultAsync(d => d.Id == id);
         }

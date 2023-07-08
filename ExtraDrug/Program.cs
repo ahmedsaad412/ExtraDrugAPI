@@ -40,6 +40,8 @@ public class Program
         builder.Services.AddScoped<IDrugTypeRepo,DrugTypeRepo>();
         builder.Services.AddScoped<IDrugCompanyRepo,DrugCompanyRepo>();
         builder.Services.AddScoped<IDrugRepo,DrugRepo>();
+        builder.Services.AddScoped<IEffectiveMatrialRepo, EffectiveMatrialRepo>();
+
 
 
 

@@ -44,7 +44,8 @@ public class AuthController : ControllerBase
             Roles = res.UserRoles,
             UserId = res.User.Id,
             Token = res.JwtToken,
-            ExpiresOn = res.ExpiresOn
+            ExpiresOn = res.ExpiresOn,
+            PhoneNumber  = res.User.PhoneNumber
         });
     }
 
@@ -71,7 +72,9 @@ public class AuthController : ControllerBase
             Email = res.User.Email,
             Roles = res.UserRoles,
             Token = res.JwtToken,
-            ExpiresOn = res.ExpiresOn
+            ExpiresOn = res.ExpiresOn,
+            PhoneNumber = res.User.PhoneNumber
+
         });
 
     }
