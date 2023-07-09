@@ -14,16 +14,16 @@ namespace ExtraDrug.Controllers;
 [Authorize(Roles = "Admin")]
 public class EffectiveMatrialsController : ControllerBase
 {
-    private readonly IEffectiveMatrialRepo effectiveMatrialRepo;
+    private readonly IEffectiveMatrialRepo _effectiveMatrialRepo;
 
-    public EffectiveMatrialsController(IEffectiveMatrialRepo _effectiveMatrialRepo)
+    public EffectiveMatrialsController(IEffectiveMatrialRepo effectiveMatrialRepo)
     {
-        effectiveMatrialRepo = _effectiveMatrialRepo;
+        _effectiveMatrialRepo = effectiveMatrialRepo;
     }
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var martrials= await effectiveMatrialRepo.GetAll();
+        var martrials= await _effectiveMatrialRepo.GetAll();
         return Ok(new SuccessResponce<ICollection<NameAndIdResource>>()
         {
             Message = "All Effective Matrials Fetched",

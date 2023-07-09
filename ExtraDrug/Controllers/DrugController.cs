@@ -15,17 +15,17 @@ namespace ExtraDrug.Controllers;
 [Authorize(Roles = "Admin")]
 public class DrugController : ControllerBase
 {
-    private readonly IDrugRepo drugRepo;
+    private readonly IDrugRepo _drugRepo;
 
-    public DrugController(IDrugRepo _drugRepo)
+    public DrugController(IDrugRepo drugRepo)
     {
-        drugRepo = _drugRepo;
+        _drugRepo = drugRepo;
     }
     
     [HttpPost]
     public async Task<IActionResult> AddDrug ([FromBody] SaveDrugResource sDrugR)
     {
-        var drug = await drugRepo.AddDrug(sDrugR.MapToModel());
+        var drug = await _drugRepo.AddDrug(sDrugR.MapToModel());
         return Created("",new SuccessResponce<DrugResource>()
         {
             Message = "Created Successfully",
@@ -37,7 +37,7 @@ public class DrugController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        var drug = await drugRepo.GetDrugById(id, includeData:true);
+        var drug = await _drugRepo.GetDrugById(id, includeData:true);
         if(drug is null)
         {
             return NotFound(new ErrorResponce()
@@ -61,7 +61,7 @@ public class DrugController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrug([FromRoute] int id)
     {
-        var drug =  await drugRepo.DeleteDrug(id);
+        var drug =  await _drugRepo.DeleteDrug(id);
         if (drug is null)
         {
             return NotFound(new ErrorResponce()
@@ -84,7 +84,7 @@ public class DrugController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllDrgus()
     {
-        var drugs = await drugRepo.GetAllDrugs();
+        var drugs = await _drugRepo.GetAllDrugs();
 
         return Ok(new SuccessResponce<ICollection<DrugResource>>()
         {
@@ -97,7 +97,7 @@ public class DrugController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateDrug([FromRoute] int id , [FromBody] SaveDrugResource sDrugR )
     {
-        var drug = await drugRepo.UpdateDrug(id, sDrugR.MapToModel());
+        var drug = await _drugRepo.UpdateDrug(id, sDrugR.MapToModel());
         if (drug is null)
         {
             return NotFound(new ErrorResponce()

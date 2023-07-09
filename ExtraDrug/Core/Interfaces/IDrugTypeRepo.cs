@@ -8,5 +8,7 @@ public interface IDrugTypeRepo
     Task<DrugType?> DeleteDrugType(int Id);
     Task<DrugType?> UpdateDrugType(int Id , DrugType drugType);
     Task<ICollection<DrugType>> GetAllDrugType();
+    Task<DrugType?> GetTypeById(int id);
+
 
 }

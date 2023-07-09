@@ -15,17 +15,17 @@ namespace ExtraDrug.Controllers;
 [Authorize(Roles = "Admin")]
 public class DrugTypesController : ControllerBase
 {
-    private readonly IDrugTypeRepo drugTypeRepo;
+    private readonly IDrugTypeRepo _drugTypeRepo;
 
-    public DrugTypesController(IDrugTypeRepo _drugTypeRepo)
+    public DrugTypesController(IDrugTypeRepo drugTypeRepo)
     {
-        drugTypeRepo = _drugTypeRepo;
+        _drugTypeRepo = drugTypeRepo;
     }
     [HttpPost]
     public async Task<IActionResult> AddDrugType([FromBody] NameAndIdResource drugTypeResource)
     {
-        var type = await drugTypeRepo.AddDrugType(drugTypeResource.MapToModel<DrugType>());
-        return Created("",new SuccessResponce<NameAndIdResource>(){
+        var type = await _drugTypeRepo.AddDrugType(drugTypeResource.MapToModel<DrugType>());
+        return Created( "", new SuccessResponce<NameAndIdResource>(){
             Message = "Created Successfuly",
             Data = NameAndIdResource.MapToResource(type),
             Meta = null
@@ -34,8 +34,8 @@ public class DrugTypesController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> EditDrugType([FromRoute] int id ,[FromBody] NameAndIdResource drugTypeResource)
     {
-        var type = await drugTypeRepo.UpdateDrugType(id, drugTypeResource.MapToModel<DrugType>());
-        if (type is null) return BadRequest(new ErrorResponce()
+        var type = await _drugTypeRepo.UpdateDrugType(id, drugTypeResource.MapToModel<DrugType>());
+        if (type is null) return NotFound(new ErrorResponce()
             {
                 Message= "Type Not Found",
                 Errors = new string[] { "Type Id Is Invalid" }
@@ -52,10 +52,10 @@ public class DrugTypesController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrugType([FromRoute] int id)
     {
-        var type = await drugTypeRepo.DeleteDrugType(id);
-        if (type is null) return BadRequest(new ErrorResponce()
+        var type = await _drugTypeRepo.DeleteDrugType(id);
+        if (type is null) return NotFound(new ErrorResponce()
         {
-            Message= "type Id Is Invalid",
+            Message= "Type Not Found",
             Errors = new string[] { "type Id Is Invalid" }
         });
         return Ok(
@@ -71,7 +71,7 @@ public class DrugTypesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllDrugType()
     {
-        var types = await drugTypeRepo.GetAllDrugType();
+        var types = await _drugTypeRepo.GetAllDrugType();
         return Ok(new SuccessResponce<ICollection<NameAndIdResource>>()
         {
             Message = "All Drugs types",

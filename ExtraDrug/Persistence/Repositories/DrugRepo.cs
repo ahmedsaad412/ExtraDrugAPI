@@ -6,38 +6,38 @@ namespace ExtraDrug.Persistence.Repositories;
 
 public class DrugRepo : IDrugRepo
 {
-    private readonly AppDbContext ctx;
+    private readonly AppDbContext _ctx;
 
-    public DrugRepo(AppDbContext _ctx)
+    public DrugRepo(AppDbContext ctx)
     {
-        ctx = _ctx;
+        _ctx = ctx;
     }
     public async Task<Drug> AddDrug(Drug d)
     {
         var efMats = d.EffectiveMatrials;
         d.EffectiveMatrials = new List<EffectiveMatrial>(); 
-        ctx.Drugs.Add(d);
+        _ctx.Drugs.Add(d);
         foreach (var ef in efMats)
         {
             if (ef is null) continue;
 
             if (ef.Id == 0)
             {
-                ctx.EffectiveMatrials.Add(ef);
+                _ctx.EffectiveMatrials.Add(ef);
                 ef.InDrugs.Add(d);
             }
             else
             {
-                var ef_from_db = await ctx.EffectiveMatrials.FindAsync(ef.Id);
+                var ef_from_db = await _ctx.EffectiveMatrials.FindAsync(ef.Id);
                 ef_from_db?.InDrugs.Add(d);
             }
 
         }
-        await ctx.SaveChangesAsync();
-        await ctx.Entry(d).Reference(d =>d.Company).LoadAsync();
-        await ctx.Entry(d).Reference(d => d.DrugCategory).LoadAsync();
-        await ctx.Entry(d).Reference(d => d.DrugType).LoadAsync();
-        await ctx.Entry(d).Collection(d => d.EffectiveMatrials).LoadAsync();
+        await _ctx.SaveChangesAsync();
+        await _ctx.Entry(d).Reference(d =>d.Company).LoadAsync();
+        await _ctx.Entry(d).Reference(d => d.DrugCategory).LoadAsync();
+        await _ctx.Entry(d).Reference(d => d.DrugType).LoadAsync();
+        await _ctx.Entry(d).Collection(d => d.EffectiveMatrials).LoadAsync();
         return d; 
     }
 
@@ -45,14 +45,14 @@ public class DrugRepo : IDrugRepo
     {
         var drug = await GetDrugById(id, includeData:true);
         if (drug == null) return null;
-        ctx.Remove(drug);
-        await ctx.SaveChangesAsync();
+        _ctx.Remove(drug);
+        await _ctx.SaveChangesAsync();
         return drug;
     }
 
     public async Task<ICollection<Drug>> GetAllDrugs()
     {
-        return await ctx.Drugs
+        return await _ctx.Drugs
                 .Include(d => d.Company)
                 .Include(d => d.DrugType)
                 .Include(d => d.DrugCategory)
@@ -63,11 +63,11 @@ public class DrugRepo : IDrugRepo
     {
         if(!includeData)
         {
-            return await ctx.Drugs.SingleOrDefaultAsync(d => d.Id == id);
+            return await _ctx.Drugs.SingleOrDefaultAsync(d => d.Id == id);
         }
         else
         {
-            return await ctx.Drugs
+            return await _ctx.Drugs
                 .Include(d=>d.Company)
                 .Include(d=>d.DrugType)
                 .Include(d=>d.DrugCategory)
@@ -98,22 +98,22 @@ public class DrugRepo : IDrugRepo
 
             if (ef.Id == 0)
             {
-                ctx.EffectiveMatrials.Add(ef);
+                _ctx.EffectiveMatrials.Add(ef);
                 ef.InDrugs.Add(drug);
             }
             else
             {
-                var ef_from_db = await ctx.EffectiveMatrials.FindAsync(ef.Id);
+                var ef_from_db = await _ctx.EffectiveMatrials.FindAsync(ef.Id);
                 ef_from_db?.InDrugs.Add(drug);
             }
 
         }
 
-        await ctx.SaveChangesAsync();
-        await ctx.Entry(drug).Reference(d => d.Company).LoadAsync();
-        await ctx.Entry(drug).Reference(d => d.DrugCategory).LoadAsync();
-        await ctx.Entry(drug).Reference(d => d.DrugType).LoadAsync();
-        await ctx.Entry(drug).Collection(d => d.EffectiveMatrials).LoadAsync();
+        await _ctx.SaveChangesAsync();
+        await _ctx.Entry(drug).Reference(d => d.Company).LoadAsync();
+        await _ctx.Entry(drug).Reference(d => d.DrugCategory).LoadAsync();
+        await _ctx.Entry(drug).Reference(d => d.DrugType).LoadAsync();
+        await _ctx.Entry(drug).Collection(d => d.EffectiveMatrials).LoadAsync();
         return drug;
     }
 }

@@ -6,39 +6,45 @@ namespace ExtraDrug.Persistence.Repositories;
 
 public class DrugTypeRepo : IDrugTypeRepo
 {
-    private readonly AppDbContext ctx;
-    public DrugTypeRepo(AppDbContext _ctx)
+    private readonly AppDbContext _ctx;
+    public DrugTypeRepo(AppDbContext ctx)
     {
-        ctx = _ctx;
+        _ctx = ctx;
     }
     public async Task<DrugType> AddDrugType(DrugType drugType)
     {
-        ctx.DrugTypes.Add(drugType);
-        await ctx.SaveChangesAsync();
+        _ctx.DrugTypes.Add(drugType);
+        await _ctx.SaveChangesAsync();
         return drugType;
     }
 
     public async Task<DrugType?> DeleteDrugType(int Id)
     {
 
-        var dt = await ctx.DrugTypes.SingleOrDefaultAsync(dc => dc.Id == Id);
+        var dt = await _ctx.DrugTypes.SingleOrDefaultAsync(dc => dc.Id == Id);
         if (dt is null) return null;
-        ctx.DrugTypes.Remove(dt);
-        await ctx.SaveChangesAsync(); ;
+        _ctx.DrugTypes.Remove(dt);
+        await _ctx.SaveChangesAsync(); ;
         return dt;
     }
 
     public async Task<ICollection<DrugType>> GetAllDrugType()
     {
-        return await ctx.DrugTypes.ToListAsync();
+        return await _ctx.DrugTypes.ToListAsync();
+    }
+
+    public async Task<DrugType?> GetTypeById(int id)
+    {
+        return await _ctx.DrugTypes.FindAsync(id);
     }
 
     public async Task<DrugType?> UpdateDrugType(int Id, DrugType drugType)
     {
-        var dt = await ctx.DrugTypes.SingleOrDefaultAsync(dc => dc.Id == Id);
+        var dt = await _ctx.DrugTypes.SingleOrDefaultAsync(dc => dc.Id == Id);
         if (dt is null) return null;
         dt.Name = drugType.Name;
-        await ctx.SaveChangesAsync(); 
+        await _ctx.SaveChangesAsync(); 
         return dt;
     }
+    
 }

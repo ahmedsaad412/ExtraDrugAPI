@@ -8,5 +8,7 @@ public interface IDrugCompanyRepo
     Task<DrugCompany?> DeleteDrugCompany(int Id);
     Task<DrugCompany?> UpdateDrugCompany(int Id , DrugCompany drugCompany);
     Task<ICollection<DrugCompany>> GetAllDrugCompany();
+    Task<DrugCompany?> GetCompanyById(int id);
+
 
 }

@@ -3,6 +3,7 @@ using ExtraDrug.Controllers.Resources;
 using ExtraDrug.Controllers.Resources.DrugResources;
 using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
+using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,16 +16,18 @@ namespace ExtraDrug.Controllers;
 [Authorize(Roles = "Admin")]
 public class DrugCategoryController : ControllerBase
 {
-    private readonly IDrugCategoryRepo drugCategoryRepo;
+    private readonly IDrugCategoryRepo _drugCategoryRepo;
+    private readonly ResponceBuilder responceBuilder;
 
-    public DrugCategoryController(IDrugCategoryRepo _drugCategoryRepo)
+    public DrugCategoryController(IDrugCategoryRepo drugCategoryRepo ,ResponceBuilder _responceBuilder )
     {
-        drugCategoryRepo = _drugCategoryRepo;
+        _drugCategoryRepo = drugCategoryRepo;
+        responceBuilder = _responceBuilder;
     }
     [HttpPost]
     public async Task<IActionResult> AddDrugCategory([FromBody] NameAndIdResource drugCategoryResource)
     {
-        var category = await drugCategoryRepo.AddDrugCategory(drugCategoryResource.MapToModel<DrugCategory>());
+        var category = await _drugCategoryRepo.AddDrugCategory(drugCategoryResource.MapToModel<DrugCategory>());
         return Created("",new SuccessResponce<NameAndIdResource>(){
             Message = "Created Successfuly",
             Data = NameAndIdResource.MapToResource(category),
@@ -34,7 +37,7 @@ public class DrugCategoryController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> EditDrugCategory([FromRoute] int id ,[FromBody] NameAndIdResource drugCategoryResource)
     {
-        var category = await drugCategoryRepo.UpdateDrugCategory(id,drugCategoryResource.MapToModel<DrugCategory>());
+        var category = await _drugCategoryRepo.UpdateDrugCategory(id,drugCategoryResource.MapToModel<DrugCategory>());
         if (category is null) return BadRequest(new ErrorResponce()
             {
                 Message="Category Not Found",
@@ -52,7 +55,7 @@ public class DrugCategoryController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrugCategory([FromRoute]int id)
     {
-        var category = await drugCategoryRepo.DeleteDrugCategory(id);
+        var category = await _drugCategoryRepo.DeleteDrugCategory(id);
         if (category is null) return BadRequest(new ErrorResponce()
         {
             Message="Category Id Is Invalid",
@@ -71,7 +74,7 @@ public class DrugCategoryController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllDrugCategories()
     {
-        var categories = await drugCategoryRepo.GetAllDrugCategories();
+        var categories = await _drugCategoryRepo.GetAllDrugCategories();
         return Ok(new SuccessResponce<ICollection<NameAndIdResource>>()
         {
             Message = "All Drugs Categories",

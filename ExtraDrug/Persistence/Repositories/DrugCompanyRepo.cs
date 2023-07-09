@@ -6,39 +6,44 @@ namespace ExtraDrug.Persistence.Repositories;
 
 public class DrugCompanyRepo : IDrugCompanyRepo
 {
-    private readonly AppDbContext ctx;
-    public DrugCompanyRepo(AppDbContext _ctx)
+    private readonly AppDbContext _ctx;
+    public DrugCompanyRepo(AppDbContext ctx)
     {
-        ctx = _ctx;
+        _ctx = ctx;
     }
     public async Task<DrugCompany> AddDrugCompany(DrugCompany drugCompany)
     {
-        ctx.DrugCompanies.Add(drugCompany);
-        await ctx.SaveChangesAsync();
+        _ctx.DrugCompanies.Add(drugCompany);
+        await _ctx.SaveChangesAsync();
         return drugCompany;
     }
 
     public async Task<DrugCompany?> DeleteDrugCompany(int Id)
     {
 
-        var dc = await ctx.DrugCompanies.SingleOrDefaultAsync(dc => dc.Id == Id);
+        var dc = await _ctx.DrugCompanies.SingleOrDefaultAsync(dc => dc.Id == Id);
         if (dc is null) return null;
-        ctx.DrugCompanies.Remove(dc);
-        await ctx.SaveChangesAsync(); ;
+        _ctx.DrugCompanies.Remove(dc);
+        await _ctx.SaveChangesAsync(); ;
         return dc;
     }
 
     public async Task<ICollection<DrugCompany>> GetAllDrugCompany()
     {
-        return await ctx.DrugCompanies.ToListAsync();
+        return await _ctx.DrugCompanies.ToListAsync();
+    }
+
+    public async Task<DrugCompany?> GetCompanyById(int id)
+    {
+        return await _ctx.DrugCompanies.FindAsync(id);
     }
 
     public async Task<DrugCompany?> UpdateDrugCompany(int Id, DrugCompany drugCompany)
     {
-        var dc = await ctx.DrugCompanies.SingleOrDefaultAsync(dc => dc.Id == Id);
+        var dc = await _ctx.DrugCompanies.SingleOrDefaultAsync(dc => dc.Id == Id);
         if (dc is null) return null;
         dc.Name = drugCompany.Name;
-        await ctx.SaveChangesAsync(); 
+        await _ctx.SaveChangesAsync(); 
         return dc;
     }
 }

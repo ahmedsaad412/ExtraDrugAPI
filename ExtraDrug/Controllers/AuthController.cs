@@ -1,131 +1,78 @@
-﻿using ExtraDrug.Controllers.Resources;
-using ExtraDrug.Controllers.Resources.Auth;
+﻿using ExtraDrug.Controllers.Resources.Auth;
 using ExtraDrug.Controllers.Resources.User;
 using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Controllers.Attributes;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using ExtraDrug.Persistence.Services;
 
 namespace ExtraDrug.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[ValidateModel]
 public class AuthController : ControllerBase
 {
-    private readonly IAuthService authService;
+    private readonly IAuthService _authService;
+    private readonly ResponceBuilder _responceBuilder;
 
-    public AuthController(IAuthService _authService)
+    public AuthController(IAuthService authService , ResponceBuilder responceBuilder)
     {
-        authService = _authService;
+        _authService = authService;
+        _responceBuilder = responceBuilder;
     }
 
     [HttpPost("register")]
-    [ValidateModel]
     public async Task<IActionResult> RegisterUser([FromBody] CreateUserResource cr)
     {
 
-        var res = await authService.RegisterNewUserAsync(cr.MapToModel());
+        var res = await _authService.RegisterNewUserAsync(cr.MapToModel());
         if (!res.IsSucceeded || res.User is null)
         {
-            return BadRequest(
-               new ErrorResponce()
-               {
-                   Errors = res.Errors,
-                   Message = "Invalid User Data."
-               });
+            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Data.", errros: res.Errors));  
         }
-
-
-        return Created("", new AuthResource()
-        {
-            Username = res.User.UserName,
-            Email = res.User.Email,
-            Roles = res.UserRoles,
-            UserId = res.User.Id,
-            Token = res.JwtToken,
-            ExpiresOn = res.ExpiresOn,
-            PhoneNumber  = res.User.PhoneNumber
-        });
+        //TODO :: put the location header value 
+        return Created( "",_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res), message: "LoggedIn Successfuly", meta: null));
     }
 
     [HttpPost("login")]
-    [ValidateModel]
     public async Task<IActionResult> LoginUser([FromBody] LoginResource lr)
     {
-        var res = await authService.LoginAsync(lr.MapToModel());
+        var res = await _authService.LoginAsync(lr.MapToModel());
         if (!res.IsSucceeded || res.User is null)
         {
-            return BadRequest(
-               new ErrorResponce()
-               {
-                   Errors = res.Errors,
-                   Message = "Authentication Error: Invalid User Data."
-               });
+            return BadRequest(_responceBuilder.CreateFailure(message: "Authentication Error: Invalid User Data.", errros: res.Errors));
         }
-
-
-        return Ok(new AuthResource()
-        {
-            Username = res.User.UserName,
-            UserId = res.User.Id,
-            Email = res.User.Email,
-            Roles = res.UserRoles,
-            Token = res.JwtToken,
-            ExpiresOn = res.ExpiresOn,
-            PhoneNumber = res.User.PhoneNumber
-
-        });
+        return Ok(_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res) , message:"Registered Successfuly" , meta:null));
 
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPost("add-role-to-user")]
-    [ValidateModel]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddRoleToUser([FromBody] AddRoleToUserResource ar)
     {
-        var res = await authService.AddRoleToUser(ar.UserId , ar.Role);
+        var res = await _authService.AddRoleToUser(ar.UserId , ar.Role);
         if (!res.IsSucceeded )
-        {
-            return BadRequest(
-               new ErrorResponce()
-               {
-                   Errors = res.Errors,
-                   Message = "Invalid User Or Role Data"
-               });
-        }
-
-        return Ok(new SuccessResponce<object>(){ Message = "Role is added to the user"});
+            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Or Role Data", errros: res.Errors));
+        return Ok(_responceBuilder.CreateSuccess<object?>(message: "Role is added to the user", data: null, meta: null));
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpPost("remove-role-from-user")]
-    [ValidateModel]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RemoveRoleFromUser([FromBody] AddRoleToUserResource ar)
     {
-        var res = await authService.RemoveRoleFromUser(ar.UserId, ar.Role);
+        var res = await _authService.RemoveRoleFromUser(ar.UserId, ar.Role);
         if (!res.IsSucceeded)
-        {
-            return BadRequest(
-               new ErrorResponce()
-               {
-                   Errors = res.Errors,
-                   Message = "Invalid User Or Role Data"
-               });
-        }
-
-        return Ok(new SuccessResponce<object>() { Message = "Role is removed from the user" });
+            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Or Role Data", errros: res.Errors));
+        return Ok(_responceBuilder.CreateSuccess<object?>(message: "Role is removed from the user", data: null, meta: null));
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet("roles")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllRoles()
     {
-        var roles =  await authService.GetAllRoles();
-        return Ok(new SuccessResponce<ICollection<string?>?>()
-        {
-            Message = "All Roles",
-            Data = roles
-        });
+        var roles =  await _authService.GetAllRoles();
+        return Ok(_responceBuilder.CreateSuccess<ICollection<string?>?>(message: "All Roles", data: roles, meta: null));
     }
 }

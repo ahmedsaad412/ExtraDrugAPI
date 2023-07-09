@@ -13,38 +13,38 @@ namespace ExtraDrug.Persistence.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly UserManager<ApplicationUser> userManager;
-    private readonly RoleManager<IdentityRole> roleManager;
-    private readonly JWT jwtSettings;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly JWT _jwtSettings;
 
-    public AuthService(UserManager<ApplicationUser> _userManager, RoleManager<IdentityRole> _roleManager, IOptions<JWT> _jwtSettings )
+    public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> jwtSettings )
     {
-        userManager = _userManager;
-        roleManager = _roleManager;
-        jwtSettings = _jwtSettings.Value;
+        this._userManager = userManager;
+        this._roleManager = roleManager;
+        this._jwtSettings = jwtSettings.Value;
     }
 
     public async Task<AuthResult> RegisterNewUserAsync(ApplicationUser user)
     {
-        if (user.Email is null || await userManager.FindByEmailAsync(user.Email) is not null)
+        if (user.Email is null || await _userManager.FindByEmailAsync(user.Email) is not null)
         {
             return new AuthResult() { IsSucceeded = false, Errors = new string[] { "This Email is Already Used." } };
         }
 
-        if (user.UserName is null || await userManager.FindByNameAsync(user.UserName) is not null)
+        if (user.UserName is null || await _userManager.FindByNameAsync(user.UserName) is not null)
         {
             return new AuthResult() { IsSucceeded = false, Errors = new string[] { "This Username is Already Used." } };
         }
 
         if (user.PhoneNumber is null || 
-            await userManager.Users.SingleOrDefaultAsync(u => u.PhoneNumber != null && u.PhoneNumber.Equals(user.PhoneNumber)) is not null)
+            await _userManager.Users.SingleOrDefaultAsync(u => u.PhoneNumber != null && u.PhoneNumber.Equals(user.PhoneNumber)) is not null)
         {
             return new AuthResult() { IsSucceeded = false, Errors = new string[] { "This Phone Number is Already Used." } };
         }
 
         if (user.Password is null) return new AuthResult() { IsSucceeded = false, Errors = new string[] { "Password can't be empty." } };
 
-        var res = await userManager.CreateAsync(user, user.Password);
+        var res = await _userManager.CreateAsync(user, user.Password);
         if (!res.Succeeded)
         {
             return new AuthResult()
@@ -53,14 +53,14 @@ public class AuthService : IAuthService
                 Errors = res.Errors.Select(e => e.Description).ToList()
             };
         }
-        await userManager.AddToRoleAsync(user, "User");
+        await _userManager.AddToRoleAsync(user, "User");
         return new AuthResult() {
-            User = await userManager.FindByNameAsync(user.UserName),
+            User = await _userManager.FindByNameAsync(user.UserName),
             UserRoles = new string[] { "User" },
             Errors = null,
             IsSucceeded = true,
             JwtToken = await CreateJwtToken(user),
-            ExpiresOn = DateTime.Now.AddDays(jwtSettings.DurationInDays)
+            ExpiresOn = DateTime.Now.AddDays(_jwtSettings.DurationInDays)
         };
 
     }
@@ -68,24 +68,24 @@ public class AuthService : IAuthService
     {
         if (_userData is null ||_userData.Email is null || _userData.Password is null ) 
             return new AuthResult() { Errors = new string[] { "Invalid Email or Password" } };
-        var user = await userManager.FindByEmailAsync(_userData.Email);
-        if (user is null || !await userManager.CheckPasswordAsync(user , _userData.Password))
+        var user = await _userManager.FindByEmailAsync(_userData.Email);
+        if (user is null || !await _userManager.CheckPasswordAsync(user , _userData.Password))
             return new AuthResult() { Errors = new string[] { "Incorrect Email or Password" } };
         var jwtToken = await CreateJwtToken(user);
-        var rolesList = await userManager.GetRolesAsync(user);
+        var rolesList = await _userManager.GetRolesAsync(user);
         var roles = rolesList.ToList();
         return new AuthResult() {
             IsSucceeded = true,
             User = user,
             JwtToken = jwtToken,
             UserRoles = roles,
-            ExpiresOn = DateTime.Now.AddDays(jwtSettings.DurationInDays)
+            ExpiresOn = DateTime.Now.AddDays(_jwtSettings.DurationInDays)
         };
     }
     private async Task<string> CreateJwtToken(ApplicationUser user)
     {
-        var userClaims = await userManager.GetClaimsAsync(user);
-        var roles = await userManager.GetRolesAsync(user);
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        var roles = await _userManager.GetRolesAsync(user);
         var rolesClaims = new List<Claim>();
         foreach (var role in roles)
         {
@@ -100,21 +100,21 @@ public class AuthService : IAuthService
 
         }.Union(rolesClaims).Union(userClaims);
 
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
         var jwtTokenObj = new JwtSecurityToken(
-                issuer: jwtSettings.Issuer,
-                audience: jwtSettings.Audience,
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.Now.AddDays(jwtSettings.DurationInDays),
+                expires: DateTime.Now.AddDays(_jwtSettings.DurationInDays),
                 signingCredentials: signingCredentials
             );
         return new JwtSecurityTokenHandler().WriteToken(jwtTokenObj);
     }
     public async Task<RoleResult> AddRoleToUser(string userId , string roleName)
     {
-        var user = await userManager.FindByIdAsync(userId);
-        if(user is null||!await roleManager.RoleExistsAsync(roleName))
+        var user = await _userManager.FindByIdAsync(userId);
+        if(user is null||!await _roleManager.RoleExistsAsync(roleName))
         {
             return new RoleResult()
             {
@@ -122,7 +122,7 @@ public class AuthService : IAuthService
                 Errors = new string[] {"User Or Role NotFound."}
             };
         } 
-        if(await userManager.IsInRoleAsync(user , roleName))
+        if(await _userManager.IsInRoleAsync(user , roleName))
         {
             return new RoleResult()
             {
@@ -131,7 +131,7 @@ public class AuthService : IAuthService
             };
         }
 
-        var res = await userManager.AddToRoleAsync(user , roleName);
+        var res = await _userManager.AddToRoleAsync(user , roleName);
 
         if (!res.Succeeded)
         {
@@ -145,8 +145,8 @@ public class AuthService : IAuthService
     }
     public async Task<RoleResult> RemoveRoleFromUser(string userId, string roleName)
     {
-        var user = await userManager.FindByIdAsync(userId);
-        if (user is null || !await roleManager.RoleExistsAsync(roleName))
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null || !await _roleManager.RoleExistsAsync(roleName))
         {
             return new RoleResult()
             {
@@ -154,7 +154,7 @@ public class AuthService : IAuthService
                 Errors = new string[] { "User Or Role NotFound." }
             };
         }
-        if (!await userManager.IsInRoleAsync(user, roleName))
+        if (!await _userManager.IsInRoleAsync(user, roleName))
         {
             return new RoleResult()
             {
@@ -163,7 +163,7 @@ public class AuthService : IAuthService
             };
         }
 
-        var res = await userManager.RemoveFromRoleAsync(user, roleName);
+        var res = await _userManager.RemoveFromRoleAsync(user, roleName);
 
         if (!res.Succeeded)
         {
@@ -178,6 +178,6 @@ public class AuthService : IAuthService
 
     public async Task<ICollection<string?>> GetAllRoles()
     {
-        return  await roleManager.Roles.Select(r => r.Name).ToListAsync();
+        return  await _roleManager.Roles.Select(r => r.Name).ToListAsync();
     }
 }
