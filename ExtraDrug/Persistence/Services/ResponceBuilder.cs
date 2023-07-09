@@ -4,7 +4,7 @@ namespace ExtraDrug.Persistence.Services;
 
 public class ResponceBuilder
 {
-    public SuccessResponce<T> CreateSuccess<T>( string message , T data  , RequestMetaResource? meta) 
+    public SuccessResponce<T> CreateSuccess<T>( string message , T data  , RequestMetaResource? meta = null) 
     {
         return new SuccessResponce<T>()
         {

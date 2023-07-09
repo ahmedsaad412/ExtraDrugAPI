@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
             return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Data.", errros: res.Errors));  
         }
         //TODO :: put the location header value 
-        return Created( "",_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res), message: "LoggedIn Successfuly", meta: null));
+        return Created( "",_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res), message: "LoggedIn Successfuly"));
     }
 
     [HttpPost("login")]
@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
         {
             return BadRequest(_responceBuilder.CreateFailure(message: "Authentication Error: Invalid User Data.", errros: res.Errors));
         }
-        return Ok(_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res) , message:"Registered Successfuly" , meta:null));
+        return Ok(_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res) , message:"Registered Successfuly" ));
 
     }
 
@@ -55,7 +55,7 @@ public class AuthController : ControllerBase
         var res = await _authService.AddRoleToUser(ar.UserId , ar.Role);
         if (!res.IsSucceeded )
             return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Or Role Data", errros: res.Errors));
-        return Ok(_responceBuilder.CreateSuccess<object?>(message: "Role is added to the user", data: null, meta: null));
+        return Ok(_responceBuilder.CreateSuccess<object?>(message: "Role is added to the user", data: null));
     }
 
     [HttpPost("remove-role-from-user")]
@@ -65,7 +65,7 @@ public class AuthController : ControllerBase
         var res = await _authService.RemoveRoleFromUser(ar.UserId, ar.Role);
         if (!res.IsSucceeded)
             return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Or Role Data", errros: res.Errors));
-        return Ok(_responceBuilder.CreateSuccess<object?>(message: "Role is removed from the user", data: null, meta: null));
+        return Ok(_responceBuilder.CreateSuccess<object?>(message: "Role is removed from the user", data: null));
     }
 
     [HttpGet("roles")]
@@ -73,6 +73,6 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> GetAllRoles()
     {
         var roles =  await _authService.GetAllRoles();
-        return Ok(_responceBuilder.CreateSuccess<ICollection<string?>?>(message: "All Roles", data: roles, meta: null));
+        return Ok(_responceBuilder.CreateSuccess(message: "All Roles", data: roles));
     }
 }

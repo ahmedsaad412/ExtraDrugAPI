@@ -17,38 +17,33 @@ namespace ExtraDrug.Controllers;
 public class DrugCategoryController : ControllerBase
 {
     private readonly IDrugCategoryRepo _drugCategoryRepo;
-    private readonly ResponceBuilder responceBuilder;
+    private readonly ResponceBuilder _responceBuilder;
 
-    public DrugCategoryController(IDrugCategoryRepo drugCategoryRepo ,ResponceBuilder _responceBuilder )
+    public DrugCategoryController(IDrugCategoryRepo drugCategoryRepo ,ResponceBuilder responceBuilder )
     {
         _drugCategoryRepo = drugCategoryRepo;
-        responceBuilder = _responceBuilder;
+        _responceBuilder = responceBuilder;
     }
     [HttpPost]
     public async Task<IActionResult> AddDrugCategory([FromBody] NameAndIdResource drugCategoryResource)
     {
         var category = await _drugCategoryRepo.AddDrugCategory(drugCategoryResource.MapToModel<DrugCategory>());
-        return Created("",new SuccessResponce<NameAndIdResource>(){
-            Message = "Created Successfuly",
-            Data = NameAndIdResource.MapToResource(category),
-            Meta = null
-        });
+        return Created("",_responceBuilder.CreateSuccess(message: "Created Successfuly", data: NameAndIdResource.MapToResource(category)));
+        
     }
     [HttpPut("{id:int}")]
     public async Task<IActionResult> EditDrugCategory([FromRoute] int id ,[FromBody] NameAndIdResource drugCategoryResource)
     {
         var category = await _drugCategoryRepo.UpdateDrugCategory(id,drugCategoryResource.MapToModel<DrugCategory>());
-        if (category is null) return BadRequest(new ErrorResponce()
-            {
-                Message="Category Not Found",
-                Errors = new string[] { "Category Id Is Invalid" }
-            });
-        return Ok(new SuccessResponce<NameAndIdResource>()
-        {
-            Message = "Updated Successfuly",
-            Data = NameAndIdResource.MapToResource(category),
-            Meta = null
-        });
+        if (category is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                message: "Category Not Found", errros: new string[] { "Category Id Is Invalid" }
+                ));
+
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "Updated Successfuly" ,
+            data: NameAndIdResource.MapToResource(category)
+            ));
     }
 
 
@@ -56,30 +51,24 @@ public class DrugCategoryController : ControllerBase
     public async Task<IActionResult> DeleteDrugCategory([FromRoute]int id)
     {
         var category = await _drugCategoryRepo.DeleteDrugCategory(id);
-        if (category is null) return BadRequest(new ErrorResponce()
-        {
-            Message="Category Id Is Invalid",
-            Errors = new string[] { "Category Id Is Invalid" }
-        });
-        return Ok(
-                new SuccessResponce<NameAndIdResource>()
-                {
-                    Message= "Deleted Successfuly",
-                    Data =  NameAndIdResource.MapToResource(category),
-                    Meta = null
-                }
-            );
+        if (category is null) 
+            return NotFound(_responceBuilder.CreateFailure(
+                message: "Category Not Found", errros: new string[] { "Category Id Is Invalid" }
+                ));
+
+        return Ok(_responceBuilder.CreateSuccess(
+         message: "Deleted Successfuly",
+         data: NameAndIdResource.MapToResource(category)
+         ));
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllDrugCategories()
     {
         var categories = await _drugCategoryRepo.GetAllDrugCategories();
-        return Ok(new SuccessResponce<ICollection<NameAndIdResource>>()
-        {
-            Message = "All Drugs Categories",
-            Data = categories.Select(c => NameAndIdResource.MapToResource(c)).ToList(),
-            Meta = null
-        });
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "All Drugs Categories",
+            data: categories.Select(c => NameAndIdResource.MapToResource(c)).ToList()
+            ));
     }
 }
