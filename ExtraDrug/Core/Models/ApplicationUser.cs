@@ -13,4 +13,7 @@ public class ApplicationUser:IdentityUser
     [NotMapped]
     public string? Password { get; set; }
 
+    public ICollection<UserDrug> UserDrugs { get; set; } = new List<UserDrug>();
+
+
 }

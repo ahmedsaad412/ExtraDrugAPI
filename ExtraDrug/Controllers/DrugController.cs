@@ -1,10 +1,8 @@
 ﻿using ExtraDrug.Controllers.Attributes;
-using ExtraDrug.Controllers.Resources;
 using ExtraDrug.Controllers.Resources.DrugResources;
 using ExtraDrug.Core.Interfaces;
-using ExtraDrug.Core.Models;
+using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
@@ -12,26 +10,29 @@ namespace ExtraDrug.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [ValidateModel]
+[ExceptionHandler]
 [Authorize(Roles = "Admin")]
 public class DrugController : ControllerBase
 {
     private readonly IDrugRepo _drugRepo;
+    private readonly ResponceBuilder _responceBuilder;
 
-    public DrugController(IDrugRepo drugRepo)
+    public DrugController(IDrugRepo drugRepo , ResponceBuilder responceBuilder)
     {
         _drugRepo = drugRepo;
+        _responceBuilder = responceBuilder;
     }
     
     [HttpPost]
+
     public async Task<IActionResult> AddDrug ([FromBody] SaveDrugResource sDrugR)
     {
         var drug = await _drugRepo.AddDrug(sDrugR.MapToModel());
-        return Created("",new SuccessResponce<DrugResource>()
-        {
-            Message = "Created Successfully",
-            Data = DrugResource.MapToResource(drug),
-            Meta = null
-        });
+        return Created("",_responceBuilder.CreateSuccess
+        (
+            message:"Created Successfully",
+            data : DrugResource.MapToResource(drug)
+        ));;
     }
 
     [HttpGet("{id:int}")]
@@ -40,21 +41,18 @@ public class DrugController : ControllerBase
         var drug = await _drugRepo.GetDrugById(id, includeData:true);
         if(drug is null)
         {
-            return NotFound(new ErrorResponce()
-            {
-                Message = "Drug Not Found",
-                Errors = new[] { "Drug Not Found" }
-            });
+            return NotFound(_responceBuilder.CreateFailure
+            (
+                message : "Drug Not Found",
+                errors : new[] { "Drug Not Found" }
+            ));
         }
-        else
-        {
-            return Ok(new SuccessResponce<DrugResource>()
-            {
-                Message = "Drug Fetched",
-                Data = DrugResource.MapToResource(drug),
-                Meta = null,
-            });
-        }
+        return Ok(_responceBuilder.CreateSuccess
+        (
+            message: "Drug Fetched",
+            data: DrugResource.MapToResource(drug)
+        ));
+        
 
     }
 
@@ -64,21 +62,17 @@ public class DrugController : ControllerBase
         var drug =  await _drugRepo.DeleteDrug(id);
         if (drug is null)
         {
-            return NotFound(new ErrorResponce()
-            {
-                Message = "Drug Not Found",
-                Errors = new[] { "Drug Not Found" }
-            });
+            return NotFound(_responceBuilder.CreateFailure
+            (
+                message: "Drug Not Found",
+                errors: new[] { "Drug Not Found" }
+            ));
         }
-        else
-        {
-            return Ok(new SuccessResponce<DrugResource>()
-            {
-                Message = "Drug Deleted",
-                Data = DrugResource.MapToResource(drug),
-                Meta = null,
-            });
-        }
+        return Ok(_responceBuilder.CreateSuccess
+        (
+            message: "Drug Deleted",
+            data: DrugResource.MapToResource(drug)
+        ));
     }
 
     [HttpGet]
@@ -86,12 +80,11 @@ public class DrugController : ControllerBase
     {
         var drugs = await _drugRepo.GetAllDrugs();
 
-        return Ok(new SuccessResponce<ICollection<DrugResource>>()
-        {
-            Message = "All Drugs Fetched",
-            Data = drugs.Select(d=> DrugResource.MapToResource(d)).ToList(),
-            Meta = null,
-        });
+        return Ok(_responceBuilder.CreateSuccess
+            (
+                message : "All Drugs Fetched",
+                data : drugs.Select(d=> DrugResource.MapToResource(d)).ToList()
+            ));
     }
 
     [HttpPut("{id:int}")]
@@ -100,21 +93,17 @@ public class DrugController : ControllerBase
         var drug = await _drugRepo.UpdateDrug(id, sDrugR.MapToModel());
         if (drug is null)
         {
-            return NotFound(new ErrorResponce()
-            {
-                Message = "Drug Not Found",
-                Errors = new[] { "Drug Not Found" }
-            });
+            return NotFound(_responceBuilder.CreateFailure
+            (
+                message: "Drug Not Found",
+                errors: new[] { "Drug Not Found" }
+            ));
         }
-        else
-        {
-            return Ok(new SuccessResponce<DrugResource>()
-            {
-                Message = "Drug Updated",
-                Data = DrugResource.MapToResource(drug),
-                Meta = null,
-            });
-        }
+        return Ok(_responceBuilder.CreateSuccess
+        (
+            message: "Drug Updated",
+            data: DrugResource.MapToResource(drug)
+        ));
     }
 }
  

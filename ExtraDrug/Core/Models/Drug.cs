@@ -22,4 +22,6 @@ public class Drug
     public DrugCategory? DrugCategory { get; set; }
     public ICollection<EffectiveMatrial> EffectiveMatrials { get; set; } = new List<EffectiveMatrial>();
 
+    public ICollection<UserDrug> DrugUsers { get; set; } = new List<UserDrug>();
+
 }

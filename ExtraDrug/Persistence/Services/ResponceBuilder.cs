@@ -1,4 +1,5 @@
 ﻿using ExtraDrug.Controllers.Resources;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ExtraDrug.Persistence.Services;
 
@@ -14,13 +15,15 @@ public class ResponceBuilder
         };    
     }
 
-    public ErrorResponce CreateFailure(string message,ICollection<string>? errros )
+    public ErrorResponce CreateFailure(string message,ICollection<string>? errors )
     {
         return new ErrorResponce()
         {
             Message = message,
-            Errors= errros
+            Errors= errors
         };
     }
+
+   
 
 }

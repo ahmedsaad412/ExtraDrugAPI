@@ -1,11 +1,9 @@
 ﻿using ExtraDrug.Controllers.Attributes;
-using ExtraDrug.Controllers.Resources;
 using ExtraDrug.Controllers.Resources.DrugResources;
 using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
 using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
@@ -13,6 +11,8 @@ namespace ExtraDrug.Controllers;
 [Route("api/drug-categories")]
 [ApiController]
 [ValidateModel]
+[ExceptionHandler]
+
 [Authorize(Roles = "Admin")]
 public class DrugCategoryController : ControllerBase
 {
@@ -37,7 +37,7 @@ public class DrugCategoryController : ControllerBase
         var category = await _drugCategoryRepo.UpdateDrugCategory(id,drugCategoryResource.MapToModel<DrugCategory>());
         if (category is null)
             return NotFound(_responceBuilder.CreateFailure(
-                message: "Category Not Found", errros: new string[] { "Category Id Is Invalid" }
+                message: "Category Not Found", errors: new string[] { "Category Id Is Invalid" }
                 ));
 
         return Ok(_responceBuilder.CreateSuccess(
@@ -53,7 +53,7 @@ public class DrugCategoryController : ControllerBase
         var category = await _drugCategoryRepo.DeleteDrugCategory(id);
         if (category is null) 
             return NotFound(_responceBuilder.CreateFailure(
-                message: "Category Not Found", errros: new string[] { "Category Id Is Invalid" }
+                message: "Category Not Found", errors: new string[] { "Category Id Is Invalid" }
                 ));
 
         return Ok(_responceBuilder.CreateSuccess(

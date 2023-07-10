@@ -40,11 +40,27 @@ public class AppDbContext:IdentityDbContext<ApplicationUser>
         builder.Entity<ApplicationUser>()
             .HasIndex(u => u.PhoneNumber)
             .IsUnique();
-            
+
+        builder.Entity<ApplicationUser>()
+            .HasMany(u => u.UserDrugs)
+            .WithOne(ud => ud.User)
+            .HasForeignKey(ud => ud.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+        builder.Entity<Drug>()
+            .HasMany(d => d.DrugUsers)
+            .WithOne(ud => ud.Drug)
+            .HasForeignKey(ud => ud.DrugId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
     }
     public virtual DbSet<Drug> Drugs { get; set; }
     public virtual DbSet<DrugCategory> DrugCategories { get; set; }
     public virtual DbSet<DrugCompany> DrugCompanies { get; set; }
     public virtual DbSet<DrugType> DrugTypes { get; set; }
     public virtual DbSet<EffectiveMatrial> EffectiveMatrials { get; set; }
+    public virtual DbSet<UserDrug> UsersDrugs { get; set; }
+
 }

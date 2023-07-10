@@ -12,6 +12,8 @@ namespace ExtraDrug.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [ValidateModel]
+[ExceptionHandler]
+
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
@@ -30,7 +32,7 @@ public class AuthController : ControllerBase
         var res = await _authService.RegisterNewUserAsync(cr.MapToModel());
         if (!res.IsSucceeded || res.User is null)
         {
-            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Data.", errros: res.Errors));  
+            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Data.", errors: res.Errors));  
         }
         //TODO :: put the location header value 
         return Created( "",_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res), message: "LoggedIn Successfuly"));
@@ -42,7 +44,7 @@ public class AuthController : ControllerBase
         var res = await _authService.LoginAsync(lr.MapToModel());
         if (!res.IsSucceeded || res.User is null)
         {
-            return BadRequest(_responceBuilder.CreateFailure(message: "Authentication Error: Invalid User Data.", errros: res.Errors));
+            return BadRequest(_responceBuilder.CreateFailure(message: "Authentication Error: Invalid User Data.", errors: res.Errors));
         }
         return Ok(_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res) , message:"Registered Successfuly" ));
 
@@ -54,7 +56,7 @@ public class AuthController : ControllerBase
     {
         var res = await _authService.AddRoleToUser(ar.UserId , ar.Role);
         if (!res.IsSucceeded )
-            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Or Role Data", errros: res.Errors));
+            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Or Role Data", errors: res.Errors));
         return Ok(_responceBuilder.CreateSuccess<object?>(message: "Role is added to the user", data: null));
     }
 
@@ -64,7 +66,7 @@ public class AuthController : ControllerBase
     {
         var res = await _authService.RemoveRoleFromUser(ar.UserId, ar.Role);
         if (!res.IsSucceeded)
-            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Or Role Data", errros: res.Errors));
+            return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Or Role Data", errors: res.Errors));
         return Ok(_responceBuilder.CreateSuccess<object?>(message: "Role is removed from the user", data: null));
     }
 
