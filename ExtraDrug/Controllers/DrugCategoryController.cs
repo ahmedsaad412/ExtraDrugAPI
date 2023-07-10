@@ -46,6 +46,21 @@ public class DrugCategoryController : ControllerBase
             ));
     }
 
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> getById([FromRoute] int id)
+    {
+        var category = await _drugCategoryRepo.GetCategoryById(id);
+        if (category is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                message: "Category Not Found", errors: new string[] { "Category Id Is Invalid" }
+                ));
+
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "Category Fetched",
+            data: NameAndIdResource.MapToResource(category)
+            ));
+    }
+
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrugCategory([FromRoute]int id)

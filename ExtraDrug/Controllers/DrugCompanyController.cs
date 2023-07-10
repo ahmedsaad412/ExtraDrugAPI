@@ -46,6 +46,20 @@ public class DrugCompanyController : ControllerBase
                 data : NameAndIdResource.MapToResource(company)
             )); 
     }
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> getById([FromRoute] int id)
+    {
+        var company = await _drugCompanyRepo.GetCompanyById(id);
+        if (company is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                 message: "company Not Found",
+                 errors: new string[] { "company Id Is Invalid" }
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+                message: "company fetced",
+                data: NameAndIdResource.MapToResource(company)
+            ));
+    }
 
 
     [HttpDelete("{id:int}")]

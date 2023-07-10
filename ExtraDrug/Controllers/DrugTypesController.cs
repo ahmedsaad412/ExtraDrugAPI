@@ -50,6 +50,21 @@ public class DrugTypesController : ControllerBase
     }
 
 
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> getById([FromRoute] int id)
+    {
+        var type = await _drugTypeRepo.GetTypeById(id);
+        if (type is null) return NotFound(_responceBuilder.CreateFailure(
+             message: "Type Not Found",
+             errors: new string[] { "Type Id Is Invalid" }
+            ));
+        return Ok(_responceBuilder.CreateSuccess(
+             message: "Type fetched",
+             data: NameAndIdResource.MapToResource(type)
+            ));
+    }
+
+
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrugType([FromRoute] int id)
     {
