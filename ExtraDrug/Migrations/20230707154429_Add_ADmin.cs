@@ -21,7 +21,7 @@ namespace ExtraDrug.Migrations
                    {
                         id, "Admin" , "Admin" , "Admin" , "Admin".ToUpper(),
                        "admin@extradrug.com" ,"admin@extradrug.com".ToUpper() , "AQAAAAIAAYagAAAAEE7rcEQm6F25+Ujp/W+jX0yM1PHS1qTiaCGhpC9QVliQayygLTrPiiyBB7Sud5Fabg==" , "2VBQZVILEMHPKZ56HTDU36ZUCU57F5BN" , Guid.NewGuid().ToString(),
-                      0 , false , false , false , false
+                      0 , false , false , false , true
                    }
                );
             migrationBuilder.Sql(

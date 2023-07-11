@@ -14,6 +14,8 @@ public class ApplicationUser:IdentityUser
     public string? Password { get; set; }
 
     public ICollection<UserDrug> UserDrugs { get; set; } = new List<UserDrug>();
+    [NotMapped]
+    public ICollection<string> Roles { get; set;  } = new List<string>();
 
 
 }

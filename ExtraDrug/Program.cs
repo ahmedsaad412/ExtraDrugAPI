@@ -42,7 +42,7 @@ public class Program
         builder.Services.AddScoped<IDrugRepo,DrugRepo>();
         builder.Services.AddScoped<IEffectiveMatrialRepo, EffectiveMatrialRepo>();
         builder.Services.AddScoped<ResponceBuilder,ResponceBuilder>();
-
+        builder.Services.AddScoped<IUserRepo, UserRepo>();
        
 
 

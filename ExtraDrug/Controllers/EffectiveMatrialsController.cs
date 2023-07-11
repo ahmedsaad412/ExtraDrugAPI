@@ -43,7 +43,7 @@ public class EffectiveMatrialsController : ControllerBase
             ));
         return Ok(_responceBuilder.CreateSuccess(
             message: "Effective Matrial fetched",
-            data:matrial
+            data: NameAndIdResource.MapToResource(matrial)
             ));
     }
 
@@ -58,7 +58,7 @@ public class EffectiveMatrialsController : ControllerBase
             ));
         return Ok(_responceBuilder.CreateSuccess(
             message: "Effective Matrial deleted",
-            data: matrial
+            data: NameAndIdResource.MapToResource(matrial)
             ));
     }
 
@@ -72,7 +72,7 @@ public class EffectiveMatrialsController : ControllerBase
             ));
         return Ok(_responceBuilder.CreateSuccess(
             message: "Effective Matrial updated",
-            data: matrial
+            data: NameAndIdResource.MapToResource(matrial)
             ));
     }
 
@@ -82,7 +82,7 @@ public class EffectiveMatrialsController : ControllerBase
         var matrial = await _effectiveMatrialRepo.Add( efNameRes.MapToModel<EffectiveMatrial>());
         return Ok(_responceBuilder.CreateSuccess(
             message: "Effective Matrial Created",
-            data: matrial
+            data: NameAndIdResource.MapToResource(matrial)
         ));
     }
 }
