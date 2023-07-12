@@ -35,29 +35,29 @@ public class DrugCompanyController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> EditDrugCompany([FromRoute] int id ,[FromBody] NameAndIdResource drugTypeResource)
     {
-        var company = await _drugCompanyRepo.UpdateDrugCompany(id, drugTypeResource.MapToModel<DrugCompany>());
-        if (company is null)
+        var res = await _drugCompanyRepo.UpdateDrugCompany(id, drugTypeResource.MapToModel<DrugCompany>());
+        if (!res.IsSucceeded || res.Data is null)
             return NotFound(_responceBuilder.CreateFailure(
                  message: "company Not Found",
-                 errors:new string[] { "company Id Is Invalid" }
+                 errors:res.Errors
                 )) ;
         return Ok(_responceBuilder.CreateSuccess(
                 message : "Updated Successfuly",
-                data : NameAndIdResource.MapToResource(company)
+                data : NameAndIdResource.MapToResource(res.Data)
             )); 
     }
     [HttpGet("{id:int}")]
     public async Task<IActionResult> getById([FromRoute] int id)
     {
-        var company = await _drugCompanyRepo.GetCompanyById(id);
-        if (company is null)
+        var res = await _drugCompanyRepo.GetCompanyById(id);
+        if (!res.IsSucceeded || res.Data is null)
             return NotFound(_responceBuilder.CreateFailure(
                  message: "company Not Found",
-                 errors: new string[] { "company Id Is Invalid" }
+                 errors: res.Errors
                 ));
         return Ok(_responceBuilder.CreateSuccess(
                 message: "company fetced",
-                data: NameAndIdResource.MapToResource(company)
+                data: NameAndIdResource.MapToResource(res.Data)
             ));
     }
 
@@ -65,15 +65,15 @@ public class DrugCompanyController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrugCompany([FromRoute] int id)
     {
-        var company = await _drugCompanyRepo.DeleteDrugCompany(id);
-        if (company is null)
+        var res = await _drugCompanyRepo.DeleteDrugCompany(id);
+        if (!res.IsSucceeded || res.Data is null)
             return NotFound(_responceBuilder.CreateFailure(
                  message: "company Not Found",
-                 errors: new string[] { "company Id Is Invalid" }
+                 errors: res.Errors
                 ));
         return Ok(_responceBuilder.CreateSuccess(
                 message: "Deleted Successfuly",
-                data: NameAndIdResource.MapToResource(company)
+                data: NameAndIdResource.MapToResource(res.Data)
             ));
     }
 

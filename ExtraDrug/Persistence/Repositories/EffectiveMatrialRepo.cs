@@ -1,5 +1,6 @@
 ﻿using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
+using ExtraDrug.Persistence.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExtraDrug.Persistence.Repositories;
@@ -7,10 +8,12 @@ namespace ExtraDrug.Persistence.Repositories;
 public class EffectiveMatrialRepo : IEffectiveMatrialRepo
 {
     private readonly AppDbContext _ctx;
+    private readonly RepoResultBuilder<EffectiveMatrial> _repoResultBuilder;
 
-    public EffectiveMatrialRepo(AppDbContext ctx)
+    public EffectiveMatrialRepo(AppDbContext ctx , RepoResultBuilder<EffectiveMatrial> repoResultBuilder)
     {
         _ctx = ctx;
+        _repoResultBuilder = repoResultBuilder;
     }
 
     public async  Task<EffectiveMatrial> Add(EffectiveMatrial ef)
@@ -20,13 +23,13 @@ public class EffectiveMatrialRepo : IEffectiveMatrialRepo
         return ef;
     }
 
-    public async  Task<EffectiveMatrial?> Delete(int Id)
+    public async  Task<RepoResult<EffectiveMatrial>> Delete(int Id)
     {
-        var ef = await GetById(Id);
-        if (ef is null ) return null;
-        _ctx.Remove(ef);
+        var res = await GetById(Id);
+        if (!res.IsSucceeded || res.Data is null) return res;
+        _ctx.Remove(res.Data);
         await _ctx.SaveChangesAsync();
-        return ef;
+        return res;
     }
 
     public async Task<ICollection<EffectiveMatrial>> GetAll()
@@ -34,18 +37,20 @@ public class EffectiveMatrialRepo : IEffectiveMatrialRepo
        return await _ctx.EffectiveMatrials.ToListAsync();
     }
 
-    public async Task<EffectiveMatrial?> GetById(int id)
+    public async Task<RepoResult<EffectiveMatrial>> GetById(int id)
     {
-       return await _ctx.EffectiveMatrials.SingleOrDefaultAsync(ef => ef.Id == id);
+        var efm = await _ctx.EffectiveMatrials.SingleOrDefaultAsync(ef => ef.Id == id);
+        if (efm is null) return _repoResultBuilder.Failuer(new[] { "Effectiva Mattrial Not Found" });
+        return _repoResultBuilder.Success(efm);
     }
 
-    public async Task<EffectiveMatrial?> Update(int Id, EffectiveMatrial ef)
+    public async Task<RepoResult<EffectiveMatrial>> Update(int Id, EffectiveMatrial ef)
     {
-        var ef_from_db = await GetById(Id);
-        if (ef_from_db is null) return null;
-        ef_from_db.Name = ef.Name;
+        var res = await GetById(Id);
+        if (!res.IsSucceeded || res.Data is null) return res;
+        res.Data.Name = ef.Name;
         await _ctx.SaveChangesAsync();
-        return ef_from_db;
+        return res;
     }
 
 }

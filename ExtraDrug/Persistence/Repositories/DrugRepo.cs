@@ -1,5 +1,7 @@
 ﻿using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
+using ExtraDrug.Migrations;
+using ExtraDrug.Persistence.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExtraDrug.Persistence.Repositories;
@@ -7,10 +9,12 @@ namespace ExtraDrug.Persistence.Repositories;
 public class DrugRepo : IDrugRepo
 {
     private readonly AppDbContext _ctx;
+    private readonly RepoResultBuilder<Drug> _repoResultBuilder;
 
-    public DrugRepo(AppDbContext ctx)
+    public DrugRepo(AppDbContext ctx, RepoResultBuilder<Drug> repoResultBuilder)
     {
         _ctx = ctx;
+        _repoResultBuilder = repoResultBuilder;
     }
     public async Task<Drug> AddDrug(Drug d)
     {
@@ -41,13 +45,13 @@ public class DrugRepo : IDrugRepo
         return d; 
     }
 
-    public async Task<Drug?> DeleteDrug(int id)
+    public async Task<RepoResult<Drug>> DeleteDrug(int id)
     {
-        var drug = await GetDrugById(id, includeData:true);
-        if (drug == null) return null;
-        _ctx.Remove(drug);
+        var res = await GetDrugById(id, includeData:true);
+        if (!res.IsSucceeded || res.Data == null) return res;
+        _ctx.Remove(res.Data);
         await _ctx.SaveChangesAsync();
-        return drug;
+        return res;
     }
 
     public async Task<ICollection<Drug>> GetAllDrugs()
@@ -56,31 +60,39 @@ public class DrugRepo : IDrugRepo
                 .Include(d => d.Company)
                 .Include(d => d.DrugType)
                 .Include(d => d.DrugCategory)
-                .Include(d => d.EffectiveMatrials).ToListAsync();
+                .Include(d => d.EffectiveMatrials)
+                .Where(d=> d.IsTradingPermitted)
+                .ToListAsync();
     }
 
-    public async Task<Drug?> GetDrugById(int id , bool includeData)
+    public async Task<RepoResult<Drug>> GetDrugById(int id , bool includeData)
     {
+        Drug? drug; 
         if(!includeData)
         {
-            return await _ctx.Drugs.SingleOrDefaultAsync(d => d.Id == id);
+            drug = await _ctx.Drugs.SingleOrDefaultAsync(d => d.Id == id);
         }
         else
         {
-            return await _ctx.Drugs
+            drug = await _ctx.Drugs
                 .Include(d=>d.Company)
                 .Include(d=>d.DrugType)
                 .Include(d=>d.DrugCategory)
                 .Include(d=>d.EffectiveMatrials)
                 .SingleOrDefaultAsync(d => d.Id == id);
         }
+
+        if (drug == null) return _repoResultBuilder.Failuer(new[] { "Drug id is Invalid ,Drug Not Found" });
+        return _repoResultBuilder.Success(drug);
+
     }
 
-    public async  Task<Drug?> UpdateDrug(int id, Drug d)
+    public async  Task<RepoResult<Drug>> UpdateDrug(int id, Drug d)
     {
-        var drug = await GetDrugById(id, includeData: true);
-        if (drug == null) return null;
+        var res = await GetDrugById(id, includeData: true);
+        if (!res.IsSucceeded || res.Data == null) return res;
 
+        var drug = res.Data;
 
         drug.Ar_Name = d.Ar_Name;
         drug.En_Name = d.En_Name;
@@ -114,6 +126,6 @@ public class DrugRepo : IDrugRepo
         await _ctx.Entry(drug).Reference(d => d.DrugCategory).LoadAsync();
         await _ctx.Entry(drug).Reference(d => d.DrugType).LoadAsync();
         await _ctx.Entry(drug).Collection(d => d.EffectiveMatrials).LoadAsync();
-        return drug;
+        return _repoResultBuilder.Success(drug);
     }
 }

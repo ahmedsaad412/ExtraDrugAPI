@@ -24,7 +24,6 @@ public class DrugController : ControllerBase
     }
     
     [HttpPost]
-
     public async Task<IActionResult> AddDrug ([FromBody] SaveDrugResource sDrugR)
     {
         var drug = await _drugRepo.AddDrug(sDrugR.MapToModel());
@@ -38,19 +37,19 @@ public class DrugController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        var drug = await _drugRepo.GetDrugById(id, includeData:true);
-        if(drug is null)
+        var res = await _drugRepo.GetDrugById(id, includeData:true);
+        if(!res.IsSucceeded || res.Data is null)
         {
             return NotFound(_responceBuilder.CreateFailure
             (
                 message : "Drug Not Found",
-                errors : new[] { "Drug Not Found" }
+                errors : res.Errors
             ));
         }
         return Ok(_responceBuilder.CreateSuccess
         (
             message: "Drug Fetched",
-            data: DrugResource.MapToResource(drug)
+            data: DrugResource.MapToResource(res.Data)
         ));
         
 
@@ -59,19 +58,19 @@ public class DrugController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrug([FromRoute] int id)
     {
-        var drug =  await _drugRepo.DeleteDrug(id);
-        if (drug is null)
+        var res =  await _drugRepo.DeleteDrug(id);
+        if (!res.IsSucceeded || res.Data is null)
         {
             return NotFound(_responceBuilder.CreateFailure
             (
                 message: "Drug Not Found",
-                errors: new[] { "Drug Not Found" }
+                errors: res.Errors
             ));
         }
         return Ok(_responceBuilder.CreateSuccess
         (
             message: "Drug Deleted",
-            data: DrugResource.MapToResource(drug)
+            data: DrugResource.MapToResource(res.Data)
         ));
     }
 
@@ -90,19 +89,19 @@ public class DrugController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateDrug([FromRoute] int id , [FromBody] SaveDrugResource sDrugR )
     {
-        var drug = await _drugRepo.UpdateDrug(id, sDrugR.MapToModel());
-        if (drug is null)
+        var res = await _drugRepo.UpdateDrug(id, sDrugR.MapToModel());
+        if (!res.IsSucceeded ||res.Data is null)
         {
             return NotFound(_responceBuilder.CreateFailure
             (
                 message: "Drug Not Found",
-                errors: new[] { "Drug Not Found" }
+                errors: res.Errors
             ));
         }
         return Ok(_responceBuilder.CreateSuccess
         (
             message: "Drug Updated",
-            data: DrugResource.MapToResource(drug)
+            data: DrugResource.MapToResource(res.Data)
         ));
     }
 }

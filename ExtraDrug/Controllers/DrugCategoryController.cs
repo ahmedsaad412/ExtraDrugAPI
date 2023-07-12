@@ -34,30 +34,30 @@ public class DrugCategoryController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> EditDrugCategory([FromRoute] int id ,[FromBody] NameAndIdResource drugCategoryResource)
     {
-        var category = await _drugCategoryRepo.UpdateDrugCategory(id,drugCategoryResource.MapToModel<DrugCategory>());
-        if (category is null)
+        var res  = await _drugCategoryRepo.UpdateDrugCategory(id,drugCategoryResource.MapToModel<DrugCategory>());
+        if ( !res.IsSucceeded|| res.Data is null)
             return NotFound(_responceBuilder.CreateFailure(
-                message: "Category Not Found", errors: new string[] { "Category Id Is Invalid" }
+                message: "Category Not Found", errors: res.Errors 
                 ));
 
         return Ok(_responceBuilder.CreateSuccess(
             message: "Updated Successfuly" ,
-            data: NameAndIdResource.MapToResource(category)
+            data: NameAndIdResource.MapToResource(res.Data)
             ));
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> getById([FromRoute] int id)
     {
-        var category = await _drugCategoryRepo.GetCategoryById(id);
-        if (category is null)
+        var res = await _drugCategoryRepo.GetCategoryById(id);
+        if (!res.IsSucceeded || res.Data is null)
             return NotFound(_responceBuilder.CreateFailure(
-                message: "Category Not Found", errors: new string[] { "Category Id Is Invalid" }
+                message: "Category Not Found", errors: res.Errors
                 ));
 
         return Ok(_responceBuilder.CreateSuccess(
             message: "Category Fetched",
-            data: NameAndIdResource.MapToResource(category)
+            data: NameAndIdResource.MapToResource(res.Data)
             ));
     }
 
@@ -65,15 +65,15 @@ public class DrugCategoryController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteDrugCategory([FromRoute]int id)
     {
-        var category = await _drugCategoryRepo.DeleteDrugCategory(id);
-        if (category is null) 
+        var res = await _drugCategoryRepo.DeleteDrugCategory(id);
+        if (!res.IsSucceeded || res.Data is null) 
             return NotFound(_responceBuilder.CreateFailure(
-                message: "Category Not Found", errors: new string[] { "Category Id Is Invalid" }
+                message: "Category Not Found", errors:res.Errors
                 ));
 
         return Ok(_responceBuilder.CreateSuccess(
          message: "Deleted Successfuly",
-         data: NameAndIdResource.MapToResource(category)
+         data: NameAndIdResource.MapToResource(res.Data)
          ));
     }
 

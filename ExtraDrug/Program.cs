@@ -43,6 +43,7 @@ public class Program
         builder.Services.AddScoped<IEffectiveMatrialRepo, EffectiveMatrialRepo>();
         builder.Services.AddScoped<ResponceBuilder,ResponceBuilder>();
         builder.Services.AddScoped<IUserRepo, UserRepo>();
+        builder.Services.AddScoped(typeof(RepoResultBuilder<>), typeof(RepoResultBuilder<>));
        
 
 

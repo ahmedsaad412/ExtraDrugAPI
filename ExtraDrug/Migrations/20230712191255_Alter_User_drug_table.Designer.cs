@@ -4,6 +4,7 @@ using ExtraDrug.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExtraDrug.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230712191255_Alter_User_drug_table")]
+    partial class Alter_User_drug_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,12 +246,6 @@ namespace ExtraDrug.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("CoordsLatitude")
-                        .HasColumnType("float");
-
-                    b.Property<double>("CoordsLongitude")
-                        .HasColumnType("float");
-
                     b.Property<int>("DrugId")
                         .HasColumnType("int");
 
@@ -261,6 +258,12 @@ namespace ExtraDrug.Migrations
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("coordsLatitude")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("coordsLongitude")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

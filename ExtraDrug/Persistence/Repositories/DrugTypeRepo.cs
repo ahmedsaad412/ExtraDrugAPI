@@ -1,5 +1,6 @@
 ﻿using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
+using ExtraDrug.Persistence.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExtraDrug.Persistence.Repositories;
@@ -7,9 +8,12 @@ namespace ExtraDrug.Persistence.Repositories;
 public class DrugTypeRepo : IDrugTypeRepo
 {
     private readonly AppDbContext _ctx;
-    public DrugTypeRepo(AppDbContext ctx)
+    private readonly RepoResultBuilder<DrugType> _repoResultBuilder;
+
+    public DrugTypeRepo(AppDbContext ctx ,RepoResultBuilder<DrugType> repoResultBuilder)
     {
         _ctx = ctx;
+        _repoResultBuilder = repoResultBuilder;
     }
     public async Task<DrugType> AddDrugType(DrugType drugType)
     {
@@ -18,14 +22,14 @@ public class DrugTypeRepo : IDrugTypeRepo
         return drugType;
     }
 
-    public async Task<DrugType?> DeleteDrugType(int Id)
+    public async Task<RepoResult<DrugType>> DeleteDrugType(int Id)
     {
 
-        var dt = await _ctx.DrugTypes.SingleOrDefaultAsync(dc => dc.Id == Id);
-        if (dt is null) return null;
-        _ctx.DrugTypes.Remove(dt);
+        var res = await GetTypeById(Id);
+        if (res.IsSucceeded || res.Data is null) return res;
+        _ctx.DrugTypes.Remove(res.Data);
         await _ctx.SaveChangesAsync(); ;
-        return dt;
+        return res;
     }
 
     public async Task<ICollection<DrugType>> GetAllDrugType()
@@ -33,18 +37,20 @@ public class DrugTypeRepo : IDrugTypeRepo
         return await _ctx.DrugTypes.ToListAsync();
     }
 
-    public async Task<DrugType?> GetTypeById(int id)
+    public async Task<RepoResult<DrugType>> GetTypeById(int id)
     {
-        return await _ctx.DrugTypes.FindAsync(id);
+        var type =  await _ctx.DrugTypes.FindAsync(id);
+        if (type is null) return _repoResultBuilder.Failuer(new[] { "Type Not Found, Type Id invalid" });
+        return _repoResultBuilder.Success(type);
     }
 
-    public async Task<DrugType?> UpdateDrugType(int Id, DrugType drugType)
+    public async Task<RepoResult<DrugType>> UpdateDrugType(int Id, DrugType drugType)
     {
-        var dt = await _ctx.DrugTypes.SingleOrDefaultAsync(dc => dc.Id == Id);
-        if (dt is null) return null;
-        dt.Name = drugType.Name;
+        var res = await GetTypeById(Id);
+        if (!res.IsSucceeded || res.Data is null) return res;
+        res.Data.Name = drugType.Name;
         await _ctx.SaveChangesAsync(); 
-        return dt;
+        return res;
     }
     
 }

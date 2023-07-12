@@ -55,7 +55,7 @@ public class AuthService : IAuthService
         }
         await _userManager.AddToRoleAsync(user, "User");
         return new AuthResult() {
-            User = await _userManager.FindByNameAsync(user.UserName),
+            Data = await _userManager.FindByNameAsync(user.UserName),
             UserRoles = new string[] { "User" },
             Errors = null,
             IsSucceeded = true,
@@ -76,7 +76,7 @@ public class AuthService : IAuthService
         var roles = rolesList.ToList();
         return new AuthResult() {
             IsSucceeded = true,
-            User = user,
+            Data = user,
             JwtToken = jwtToken,
             UserRoles = roles,
             ExpiresOn = DateTime.Now.AddDays(_jwtSettings.DurationInDays)

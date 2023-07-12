@@ -16,13 +16,13 @@ public class AuthResource
     {
         return new AuthResource()
         {
-            Username = res.User.UserName,
-            Email = res.User.Email,
+            Username = res.Data.UserName,
+            Email = res.Data.Email,
             Roles = res.UserRoles,
-            UserId = res.User.Id,
+            UserId = res.Data.Id,
             Token = res.JwtToken,
             ExpiresOn = res.ExpiresOn,
-            PhoneNumber = res.User.PhoneNumber
+            PhoneNumber = res.Data.PhoneNumber
         };
     }
 

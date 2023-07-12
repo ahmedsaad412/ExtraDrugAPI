@@ -7,8 +7,8 @@ public interface IEffectiveMatrialRepo
     Task<ICollection<EffectiveMatrial>> GetAll();
 
     Task<EffectiveMatrial> Add(EffectiveMatrial ef);
-    Task<EffectiveMatrial?> Delete(int Id);
-    Task<EffectiveMatrial?> Update(int Id, EffectiveMatrial ef);
-    Task<EffectiveMatrial?> GetById(int id);
+    Task<RepoResult<EffectiveMatrial>> Delete(int Id);
+    Task<RepoResult<EffectiveMatrial>> Update(int Id, EffectiveMatrial ef);
+    Task<RepoResult<EffectiveMatrial>> GetById(int id);
 
 }

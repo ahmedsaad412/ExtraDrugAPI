@@ -30,7 +30,7 @@ public class AuthController : ControllerBase
     {
 
         var res = await _authService.RegisterNewUserAsync(cr.MapToModel());
-        if (!res.IsSucceeded || res.User is null)
+        if (!res.IsSucceeded || res.Data is null)
         {
             return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Data.", errors: res.Errors));  
         }
@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> LoginUser([FromBody] LoginResource lr)
     {
         var res = await _authService.LoginAsync(lr.MapToModel());
-        if (!res.IsSucceeded || res.User is null)
+        if (!res.IsSucceeded || res.Data is null)
         {
             return BadRequest(_responceBuilder.CreateFailure(message: "Authentication Error: Invalid User Data.", errors: res.Errors));
         }

@@ -1,6 +1,6 @@
 ﻿using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
-using Microsoft.AspNetCore.DataProtection.XmlEncryption;
+using ExtraDrug.Persistence.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExtraDrug.Persistence.Repositories;
@@ -8,9 +8,12 @@ namespace ExtraDrug.Persistence.Repositories;
 public class DrugCategoryRepo : IDrugCategoryRepo
 {
     private readonly AppDbContext _ctx;
-    public DrugCategoryRepo(AppDbContext ctx)
+    private readonly RepoResultBuilder<DrugCategory> _repoResultBuilder;
+
+    public DrugCategoryRepo(AppDbContext ctx , RepoResultBuilder<DrugCategory> repoResultBuilder)
     {
         _ctx = ctx;
+        _repoResultBuilder = repoResultBuilder;
     }
     public async Task<DrugCategory> AddDrugCategory(DrugCategory drugCategory)
     {
@@ -19,13 +22,14 @@ public class DrugCategoryRepo : IDrugCategoryRepo
         return drugCategory;
     }
 
-    public async Task<DrugCategory?> DeleteDrugCategory(int Id)
+    public async Task<RepoResult<DrugCategory>> DeleteDrugCategory(int Id)
     {
         var dc = await _ctx.DrugCategories.SingleOrDefaultAsync(dc => dc.Id == Id);
-        if (dc is null) return null;
+        if (dc is null)
+            return _repoResultBuilder.Failuer(new[] { "Category Id Invalid , Category Not Found" });
         _ctx.DrugCategories.Remove(dc);
         await _ctx.SaveChangesAsync(); ;
-        return dc;
+        return _repoResultBuilder.Success(dc);
     }
 
     public async Task<ICollection<DrugCategory>> GetAllDrugCategories()
@@ -33,17 +37,21 @@ public class DrugCategoryRepo : IDrugCategoryRepo
         return await _ctx.DrugCategories.ToListAsync();
     }
 
-    public async Task<DrugCategory?> GetCategoryById(int id )
+    public async Task<RepoResult<DrugCategory>> GetCategoryById(int id )
     {
-        return await _ctx.DrugCategories.FindAsync(id);
+        var cat =  await _ctx.DrugCategories.FindAsync(id);
+        if (cat is null)
+            return _repoResultBuilder.Failuer(new[] { "Category Id Invalid , Category Not Found" });
+        return _repoResultBuilder.Success(cat);
     }
 
-    public async Task<DrugCategory?> UpdateDrugCategory(int Id, DrugCategory drugCategory)
+    public async Task<RepoResult<DrugCategory>> UpdateDrugCategory(int Id, DrugCategory drugCategory)
     {
         var dc = await _ctx.DrugCategories.SingleOrDefaultAsync(dc => dc.Id == Id);
-        if (dc is null) return null;
+        if (dc is null)
+            return _repoResultBuilder.Failuer(new[] { "Category Id Invalid , Category Not Found" });
         dc.Name = drugCategory.Name;
         await _ctx.SaveChangesAsync(); ;
-        return dc;
+        return _repoResultBuilder.Success(dc);
     }
 }

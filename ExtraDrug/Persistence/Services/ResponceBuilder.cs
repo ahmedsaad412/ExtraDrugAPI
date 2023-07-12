@@ -1,5 +1,4 @@
 ﻿using ExtraDrug.Controllers.Resources;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ExtraDrug.Persistence.Services;
 

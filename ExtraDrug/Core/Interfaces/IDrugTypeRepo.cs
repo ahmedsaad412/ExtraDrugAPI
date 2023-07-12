@@ -5,10 +5,8 @@ namespace ExtraDrug.Core.Interfaces;
 public interface IDrugTypeRepo
 {
     Task<DrugType> AddDrugType(DrugType drugType);
-    Task<DrugType?> DeleteDrugType(int Id);
-    Task<DrugType?> UpdateDrugType(int Id , DrugType drugType);
+    Task<RepoResult<DrugType>> DeleteDrugType(int Id);
+    Task<RepoResult<DrugType>> UpdateDrugType(int Id , DrugType drugType);
     Task<ICollection<DrugType>> GetAllDrugType();
-    Task<DrugType?> GetTypeById(int id);
-
-
+    Task<RepoResult<DrugType>> GetTypeById(int id);
 }

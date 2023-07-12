@@ -1,12 +1,12 @@
 ﻿using ExtraDrug.Controllers.Attributes;
 using ExtraDrug.Controllers.Resources.Auth;
+using ExtraDrug.Controllers.Resources.UserDrugResources;
 using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
 using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using System.Security.Claims;
 
 namespace ExtraDrug.Controllers;
 
@@ -15,7 +15,7 @@ namespace ExtraDrug.Controllers;
 [ApiController]
 [ValidateModel]
 [ExceptionHandler]
-[Authorize]
+[Authorize(Roles ="User")]
 public class UserController : ControllerBase
 {
     private readonly ResponceBuilder _responceBuilder;
@@ -27,18 +27,40 @@ public class UserController : ControllerBase
         _userRepo = userRepo;
     }
 
+    [HttpPost("Drugs")]
+    public  async Task<IActionResult> AddUserDrug( [FromBody] SaveUserDrugResource udr )
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+        var ud = udr.MapToModel();
+        ud.UserId = userIdFromToken;
+        var res = await _userRepo.AddDrugToUser(ud);
+        if (! res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message:"User Or Drug Not Found.",
+                    errors: res.Errors
+                )) ;
+        return Ok(_responceBuilder.CreateSuccess(
+            message:"drug added",
+            data:UserResource.MapToResource(res.Data)
+            ));
+    }
+
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)
     {
-        var user = await _userRepo.GetById(id);
-        if (user is null)
+        var res = await _userRepo.GetById(id);
+        if (!res.IsSucceeded || res.Data is null)
             return NotFound(_responceBuilder.CreateFailure(
                     message: "User Not Found",
-                    errors: new[] { "Invalid Id" }
+                    errors: res.Errors
                 ));
         return Ok(_responceBuilder.CreateSuccess(
             message: "User Data fetched",
-            data: UserResource.MapToResource(user)
+            data: UserResource.MapToResource(res.Data)
            ));
     }
 
