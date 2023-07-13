@@ -11,4 +11,7 @@ public interface IUserRepo
     Task<RepoResult<ApplicationUser>> DeleteDrugFromUser(string userId, int userDrugId);
     Task<RepoResult<ApplicationUser>> UpdateDrugOwnedByUser(string userId, int userDrugId, UserDrug ud);
 
+    Task<RepoResult<ApplicationUser>> DeletePhotoFromUserDrug( string userId, int userDrugId, int photoId);
+    
+    Task<RepoResult<ApplicationUser>> UploadUserDrugPhoto(string userId, int userDrugId, IFormFile file);
 }

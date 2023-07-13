@@ -1,5 +1,6 @@
 ﻿using ExtraDrug.Controllers.Resources.DrugResources;
 using ExtraDrug.Core.Models;
+using System.Linq;
 
 namespace ExtraDrug.Controllers.Resources.UserDrugResources;
 
@@ -12,6 +13,7 @@ public class UserDrugResource
     public double CoordsLongitude { get; set; }
     public double CoordsLatitude { get; set; }
     public DrugResource? Drug { get; set; }
+    public ICollection<UserDrugPhotoResource> Photos { get; set; } = new List<UserDrugPhotoResource>();
 
     public static UserDrugResource MapToResource(UserDrug ud)
     {
@@ -22,7 +24,8 @@ public class UserDrugResource
             CoordsLongitude = ud.CoordsLongitude,
             ExpireDate = ud.ExpireDate,
             Quantity = ud.Quantity,
-            Drug = ud.Drug is not null ? DrugResource.MapToResource(ud.Drug) : null
+            Drug = ud.Drug is not null ? DrugResource.MapToResource(ud.Drug) : null,
+            Photos = ud.Photos.Select(p => UserDrugPhotoResource.MapToResource(p)).ToList()
         };
     }
 

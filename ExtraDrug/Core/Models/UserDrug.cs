@@ -10,5 +10,6 @@ public class UserDrug
     public DateTime ExpireDate { get; set; }
     public int Quantity { get; set; }
     public double CoordsLongitude { get; set; } 
-    public double CoordsLatitude { get; set; } 
+    public double CoordsLatitude { get; set; }
+    public ICollection<UserDrugPhoto> Photos { get; set; } = new List<UserDrugPhoto>();
 }

@@ -94,7 +94,47 @@ public class UserController : ControllerBase
             ));
     }
 
+    [HttpPost("Drugs/{id:int}/photos")]
+    [Authorize(Roles ="User")]
+    public async Task<IActionResult> UploadUserDrugPhoto([FromRoute] int id  , [FromForm] IFormFile file)
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
 
+        if (userIdFromToken is null)
+            return Forbid();
+
+        var res = await  _userRepo.UploadUserDrugPhoto(userIdFromToken, id, file);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Or Drug Not Found.",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "photo Added",
+            data: UserResource.MapToResource(res.Data)
+            ));
+    }
+
+    [HttpDelete("Drugs/{userDrugId:int}/photos/{photoId:int}")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> DeleteUserDrugPhoto([FromRoute] int userDrugId, [FromRoute] int photoId)
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+
+        var res = await _userRepo.DeletePhotoFromUserDrug(userIdFromToken, userDrugId ,photoId);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Or Drug Not Found.",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "photo Deleted",
+            data: UserResource.MapToResource(res.Data)
+            ));
+    }
 
     [HttpGet("{id}")]  
     [Authorize(Roles ="User")]
@@ -123,5 +163,7 @@ public class UserController : ControllerBase
           data: users.Select(UserResource.MapToResource).ToList()
          ));
     }
+
+
 }
 

@@ -54,6 +54,12 @@ public class AppDbContext:IdentityDbContext<ApplicationUser>
             .HasForeignKey(ud => ud.DrugId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<UserDrug>()
+            .HasMany(ud => ud.Photos)
+            .WithOne(udp => udp.UserDrug)
+            .HasForeignKey(udp => udp.UserDrugId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
     }
     public virtual DbSet<Drug> Drugs { get; set; }
@@ -62,5 +68,7 @@ public class AppDbContext:IdentityDbContext<ApplicationUser>
     public virtual DbSet<DrugType> DrugTypes { get; set; }
     public virtual DbSet<EffectiveMatrial> EffectiveMatrials { get; set; }
     public virtual DbSet<UserDrug> UsersDrugs { get; set; }
+
+    public virtual DbSet<UserDrugPhoto> UserDrugsPhotos { get; set; }
 
 }

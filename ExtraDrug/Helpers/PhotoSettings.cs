@@ -8,7 +8,7 @@ public class PhotoSettings
 
     public int MaxBytes { get; set; }
 
-    public ICollection<string> AcceptedFileTypes { get; set; } = new string[0];
+    public ICollection<string> AcceptedFileTypes { get; set; } =new List<string>();
     public bool IsValidSize(long size)
     {
         return size <= MaxBytes;
@@ -24,15 +24,15 @@ public class PhotoSettings
 
         if (file.Length == 0)
             errors.Add("File Can't be empty");
-        if (IsValidSize(file.Length))
+        if (!IsValidSize(file.Length))
             errors.Add("File size exeeded the limit");
-        if (IsValidMIME(Path.GetExtension(file.FileName)))
+        if (!IsValidMIME(Path.GetExtension(file.FileName)))
             errors.Add("File Type Not Accepted");
 
         if (errors.Count > 0)
         {
             return new RepoResult<IFormFile> { Errors = errors  , Data = null , IsSucceeded = false};
         }
-        return new RepoResult<IFormFile> { Data= file , Errors = null ,  IsSucceeded = true};
+        return new RepoResult<IFormFile> { Data=null , Errors = null ,  IsSucceeded = true};
     }
 }

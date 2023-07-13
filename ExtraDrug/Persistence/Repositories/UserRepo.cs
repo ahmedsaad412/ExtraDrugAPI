@@ -1,9 +1,10 @@
 ﻿using ExtraDrug.Core.Interfaces;
 using ExtraDrug.Core.Models;
+using ExtraDrug.Helpers;
 using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
+using Microsoft.Extensions.Options;
 
 namespace ExtraDrug.Persistence.Repositories;
 
@@ -13,13 +14,28 @@ public class UserRepo : IUserRepo
     private readonly AppDbContext _ctx;
     private readonly IDrugRepo _drugRepo;
     private readonly RepoResultBuilder<ApplicationUser> _repoResultBuilder;
+    private readonly PhotoSettings _photoSettings;
+    private readonly IFileService _fileService;
+    private readonly IHostEnvironment _host;
+    private readonly string USERS_DRUGS_FOLDER = "Users_Drugs";
 
-    public UserRepo(UserManager<ApplicationUser> userManager  , AppDbContext ctx , IDrugRepo drugRepo ,RepoResultBuilder<ApplicationUser> repoResultBuilder)
+    public UserRepo(UserManager<ApplicationUser> userManager ,
+        AppDbContext ctx , 
+        IDrugRepo drugRepo ,
+        RepoResultBuilder<ApplicationUser> repoResultBuilder ,
+        IOptions<PhotoSettings> photoSettings,
+        IFileService fileService, 
+        IHostEnvironment host
+
+        )
     {
         _userManager = userManager;
         _ctx = ctx;
         _drugRepo = drugRepo;
         _repoResultBuilder = repoResultBuilder;
+        _photoSettings = photoSettings.Value;
+        _fileService = fileService;
+        _host = host;
     }
 
     public async Task<ICollection<ApplicationUser>> GetAll()
@@ -47,6 +63,7 @@ public class UserRepo : IUserRepo
                 .ThenInclude(d => d.DrugCategory)
             .Include(u => u.Drug)
                 .ThenInclude(d => d.EffectiveMatrials)
+            .Include(ud => ud.Photos)
             .Where(u => u.ExpireDate >  DateTime.UtcNow  && u.Drug != null && u.Drug.IsTradingPermitted)
             .LoadAsync();
         user.Roles = await _userManager.GetRolesAsync(user);
@@ -66,7 +83,6 @@ public class UserRepo : IUserRepo
         await _ctx.SaveChangesAsync();
         return _repoResultBuilder.Success(user);
     }
-
 
     public async Task<RepoResult<ApplicationUser>> DeleteDrugFromUser(string userId , int userDrugId)
     {
@@ -91,6 +107,47 @@ public class UserRepo : IUserRepo
         ud_from_Db.Quantity = ud.Quantity;
         ud_from_Db.ExpireDate = ud.ExpireDate;
 
+        await _ctx.SaveChangesAsync();
+        return await GetById(userId);
+    }
+
+    public async Task<RepoResult<ApplicationUser>> UploadUserDrugPhoto(string userId , int userDrugId , IFormFile file)
+    {
+        var ud_from_Db = await _ctx.UsersDrugs.SingleOrDefaultAsync(ud => ud.Id == userDrugId);
+        if (ud_from_Db is null) return _repoResultBuilder.Failuer(new[] { "User Drug Not Found " });
+        if (ud_from_Db.UserId != userId) return _repoResultBuilder.Failuer(new[] { "This User did not Own this Drug" });
+
+        var validationRes = _photoSettings.ValidateFile(file);
+        if(!validationRes.IsSucceeded) return _repoResultBuilder.Failuer(validationRes.Errors);
+        var UploadFolderPath = Path.Combine(_host.ContentRootPath, "wwwroot", "uploads", USERS_DRUGS_FOLDER);
+
+        var fileName = await _fileService.AddStaticFile(file, UploadFolderPath);
+
+        var photo = new UserDrugPhoto()
+        {
+            APIPath = $"{USERS_DRUGS_FOLDER}/{fileName}",
+            SysPath = Path.Combine(UploadFolderPath, fileName),
+            UserDrugId = ud_from_Db.Id
+        };
+
+        _ctx.UserDrugsPhotos.Add(photo);
+        await _ctx.SaveChangesAsync();
+        return await GetById(userId); 
+    }
+
+    public async Task<RepoResult<ApplicationUser>> DeletePhotoFromUserDrug(string userId, int userDrugId, int photoId)
+    {
+        var ud_from_Db = await _ctx.UsersDrugs
+            .Include(ud => ud.Photos)
+            .SingleOrDefaultAsync(ud => ud.Id == userDrugId);
+        if (ud_from_Db is null) return _repoResultBuilder.Failuer(new[] { "User Drug Not Found " });
+        if (ud_from_Db.UserId != userId) return _repoResultBuilder.Failuer(new[] { "This User did not Own this Drug" });
+        var photo = ud_from_Db.Photos.SingleOrDefault(p => p.Id == photoId);
+        if(photo is null) return _repoResultBuilder.Failuer(new[] { "Photo Not Found" });
+
+        var res = _fileService.RemoveFile(photo.SysPath);
+        if(!res) return _repoResultBuilder.Failuer(new[] { "Can't Delete the photo" });
+        _ctx.Remove(photo);
         await _ctx.SaveChangesAsync();
         return await GetById(userId);
     }
