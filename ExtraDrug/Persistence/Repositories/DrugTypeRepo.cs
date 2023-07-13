@@ -26,10 +26,11 @@ public class DrugTypeRepo : IDrugTypeRepo
     {
 
         var res = await GetTypeById(Id);
-        if (res.IsSucceeded || res.Data is null) return res;
-        _ctx.DrugTypes.Remove(res.Data);
+        if (!res.IsSucceeded || res.Data is null) return res;
+        var drugType = res.Data;
+        _ctx.DrugTypes.Remove(drugType);
         await _ctx.SaveChangesAsync(); ;
-        return res;
+        return _repoResultBuilder.Success(drugType);
     }
 
     public async Task<ICollection<DrugType>> GetAllDrugType()

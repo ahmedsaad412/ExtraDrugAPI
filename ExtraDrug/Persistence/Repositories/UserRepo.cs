@@ -3,6 +3,7 @@ using ExtraDrug.Core.Models;
 using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace ExtraDrug.Persistence.Repositories;
 
@@ -64,5 +65,33 @@ public class UserRepo : IUserRepo
         user.UserDrugs.Add(ud);
         await _ctx.SaveChangesAsync();
         return _repoResultBuilder.Success(user);
+    }
+
+
+    public async Task<RepoResult<ApplicationUser>> DeleteDrugFromUser(string userId , int userDrugId)
+    {
+        var ud_from_Db = await _ctx.UsersDrugs.SingleOrDefaultAsync(ud => ud.Id == userDrugId);
+        if (ud_from_Db is null) return _repoResultBuilder.Failuer(new[] { "User Drug Not Found " });
+        if (ud_from_Db.UserId != userId) return _repoResultBuilder.Failuer(new[] { "This User did not Own this Drug" });
+        _ctx.Remove(ud_from_Db);
+        await _ctx.SaveChangesAsync();
+        return await GetById(userId);
+
+    }
+
+    public async Task<RepoResult<ApplicationUser>> UpdateDrugOwnedByUser(string userId, int userDrugId, UserDrug ud)
+    {
+        
+        var ud_from_Db = await _ctx.UsersDrugs.SingleOrDefaultAsync(ud => ud.Id == userDrugId);
+        if (ud_from_Db is null) return _repoResultBuilder.Failuer(new[] { "User Drug Not Found " });
+        if (ud_from_Db.UserId != userId) return _repoResultBuilder.Failuer(new[] { "This User did not Own this Drug" });
+
+        ud_from_Db.CoordsLatitude = ud.CoordsLatitude;
+        ud_from_Db.CoordsLongitude = ud.CoordsLongitude;
+        ud_from_Db.Quantity = ud.Quantity;
+        ud_from_Db.ExpireDate = ud.ExpireDate;
+
+        await _ctx.SaveChangesAsync();
+        return await GetById(userId);
     }
 }

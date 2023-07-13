@@ -6,6 +6,8 @@ namespace ExtraDrug.Controllers.Resources.UserDrugResources;
 public class UserDrugResource
 {
     public DateTime ExpireDate { get; set; }
+
+    public int Id { get; set; }
     public int Quantity { get; set; }
     public double CoordsLongitude { get; set; }
     public double CoordsLatitude { get; set; }
@@ -15,6 +17,7 @@ public class UserDrugResource
     {
         return new UserDrugResource()
         {
+            Id = ud.Id,
             CoordsLatitude = ud.CoordsLatitude,
             CoordsLongitude = ud.CoordsLongitude,
             ExpireDate = ud.ExpireDate,

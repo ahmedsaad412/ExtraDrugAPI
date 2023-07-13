@@ -48,6 +48,48 @@ public class UserController : ControllerBase
             ));
     }
 
+    [HttpPut("Drugs/{id:int}")]
+    public async Task<IActionResult> UpdateUserDrug([FromRoute] int id,[FromBody] SaveUserDrugResource udr)
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+
+        var ud = udr.MapToModel();
+        var res = await _userRepo.UpdateDrugOwnedByUser(userIdFromToken , id , ud);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Or Drug Not Found.",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "drug Updated",
+            data: UserResource.MapToResource(res.Data)
+            ));
+    }
+
+
+    [HttpDelete("Drugs/{id:int}")]
+    public async Task<IActionResult> DeleteUserDrug([FromRoute] int id)
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+        var res = await _userRepo.DeleteDrugFromUser(userIdFromToken, id);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Or Drug Not Found.",
+                    errors: res.Errors  
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "drug deleted",
+            data: UserResource.MapToResource(res.Data)
+            ));
+    }
+
+
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserById(string id)

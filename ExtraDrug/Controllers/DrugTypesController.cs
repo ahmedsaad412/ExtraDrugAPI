@@ -36,7 +36,7 @@ public class DrugTypesController : ControllerBase
     public async Task<IActionResult> EditDrugType([FromRoute] int id ,[FromBody] NameAndIdResource drugTypeResource)
     {
         var res = await _drugTypeRepo.UpdateDrugType(id, drugTypeResource.MapToModel<DrugType>());
-        if (res.IsSucceeded || res.Data is null) return NotFound(_responceBuilder.CreateFailure(
+        if (!res.IsSucceeded || res.Data is null) return NotFound(_responceBuilder.CreateFailure(
              message : "Type Not Found",
              errors : res.Errors
             ));
@@ -51,7 +51,7 @@ public class DrugTypesController : ControllerBase
     public async Task<IActionResult> getById([FromRoute] int id)
     {
         var res = await _drugTypeRepo.GetTypeById(id);
-        if (res.IsSucceeded || res.Data is null) return NotFound(_responceBuilder.CreateFailure(
+        if (!res.IsSucceeded || res.Data is null) return NotFound(_responceBuilder.CreateFailure(
              message: "Type Not Found",
              errors: res.Errors
             ));
@@ -66,7 +66,7 @@ public class DrugTypesController : ControllerBase
     public async Task<IActionResult> DeleteDrugType([FromRoute] int id)
     {
         var res = await _drugTypeRepo.DeleteDrugType(id);
-        if (res.IsSucceeded || res.Data is null) return NotFound(_responceBuilder.CreateFailure(
+        if (!res.IsSucceeded || res.Data is null) return NotFound(_responceBuilder.CreateFailure(
            message: "Type Not Found",
            errors: res.Errors
           ));

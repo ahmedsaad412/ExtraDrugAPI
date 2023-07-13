@@ -36,14 +36,14 @@ public class EffectiveMatrialsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById([FromRoute] int id )
     {
-        var matrial = await _effectiveMatrialRepo.GetById(id);
-        if (matrial == null) return NotFound(_responceBuilder.CreateFailure(
+        var res = await _effectiveMatrialRepo.GetById(id);
+        if ( !res.IsSucceeded || res.Data == null) return NotFound(_responceBuilder.CreateFailure(
                 message: "Effective Matrial Not Found",
-                errors: new[] { "provided id invalid"}
+                errors:res.Errors
             ));
         return Ok(_responceBuilder.CreateSuccess(
             message: "Effective Matrial fetched",
-            data: NameAndIdResource.MapToResource(matrial)
+            data: NameAndIdResource.MapToResource(res.Data)
             ));
     }
 
@@ -51,28 +51,28 @@ public class EffectiveMatrialsController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> delete([FromRoute] int id)
     {
-        var matrial = await _effectiveMatrialRepo.Delete(id);
-        if (matrial == null) return NotFound(_responceBuilder.CreateFailure(
+        var res = await _effectiveMatrialRepo.Delete(id);
+        if (!res.IsSucceeded || res.Data == null) return NotFound(_responceBuilder.CreateFailure(
                 message: "Effective Matrial Not Found",
-                errors: new[] { "provided id invalid" }
+                errors:res.Errors
             ));
         return Ok(_responceBuilder.CreateSuccess(
             message: "Effective Matrial deleted",
-            data: NameAndIdResource.MapToResource(matrial)
+            data: NameAndIdResource.MapToResource(res.Data)
             ));
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> update([FromRoute] int id , [FromBody] NameAndIdResource efNameRes)
     {
-        var matrial = await _effectiveMatrialRepo.Update(id, efNameRes.MapToModel<EffectiveMatrial>());
-        if (matrial == null) return NotFound(_responceBuilder.CreateFailure(
+        var res = await _effectiveMatrialRepo.Update(id, efNameRes.MapToModel<EffectiveMatrial>());
+        if (!res.IsSucceeded ||res.Data == null) return NotFound(_responceBuilder.CreateFailure(
                 message: "Effective Matrial Not Found",
-                errors: new[] { "provided id invalid" }
+                errors: res.Errors
             ));
         return Ok(_responceBuilder.CreateSuccess(
             message: "Effective Matrial updated",
-            data: NameAndIdResource.MapToResource(matrial)
+            data: NameAndIdResource.MapToResource(res.Data)
             ));
     }
 

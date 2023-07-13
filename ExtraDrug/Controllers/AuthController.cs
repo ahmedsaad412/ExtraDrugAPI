@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
             return BadRequest(_responceBuilder.CreateFailure(message: "Invalid User Data.", errors: res.Errors));  
         }
         //TODO :: put the location header value 
-        return Created( "",_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res), message: "LoggedIn Successfuly"));
+        return Created( "",_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res), message: "Registered Successfuly"));
     }
 
     [HttpPost("login")]
@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
         {
             return BadRequest(_responceBuilder.CreateFailure(message: "Authentication Error: Invalid User Data.", errors: res.Errors));
         }
-        return Ok(_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res) , message:"Registered Successfuly" ));
+        return Ok(_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res) , message: "LoggedIn Successfuly "));
 
     }
 
