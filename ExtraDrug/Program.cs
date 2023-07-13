@@ -33,6 +33,7 @@ public class Program
         builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
         // get JWT  config from JSON FILE 
         builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+        builder.Services.Configure<PhotoSettings>(builder.Configuration.GetSection("PhotosSetting"));
 
         // Defined services 
         builder.Services.AddScoped<IAuthService, AuthService>();

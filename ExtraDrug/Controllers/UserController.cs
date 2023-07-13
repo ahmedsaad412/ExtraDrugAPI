@@ -15,7 +15,6 @@ namespace ExtraDrug.Controllers;
 [ApiController]
 [ValidateModel]
 [ExceptionHandler]
-[Authorize(Roles ="User")]
 public class UserController : ControllerBase
 {
     private readonly ResponceBuilder _responceBuilder;
@@ -28,7 +27,9 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("Drugs")]
-    public  async Task<IActionResult> AddUserDrug( [FromBody] SaveUserDrugResource udr )
+    [Authorize(Roles = "User")]
+
+    public async Task<IActionResult> AddUserDrug( [FromBody] SaveUserDrugResource udr )
     {
         string? userIdFromToken = User.FindFirstValue("uid");
 
@@ -49,6 +50,8 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("Drugs/{id:int}")]
+    [Authorize(Roles ="User")]
+
     public async Task<IActionResult> UpdateUserDrug([FromRoute] int id,[FromBody] SaveUserDrugResource udr)
     {
         string? userIdFromToken = User.FindFirstValue("uid");
@@ -71,6 +74,8 @@ public class UserController : ControllerBase
 
 
     [HttpDelete("Drugs/{id:int}")]
+    [Authorize(Roles ="User")]
+
     public async Task<IActionResult> DeleteUserDrug([FromRoute] int id)
     {
         string? userIdFromToken = User.FindFirstValue("uid");
@@ -91,7 +96,9 @@ public class UserController : ControllerBase
 
 
 
-    [HttpGet("{id}")]
+    [HttpGet("{id}")]  
+    [Authorize(Roles ="User")]
+
     public async Task<IActionResult> GetUserById(string id)
     {
         var res = await _userRepo.GetById(id);
