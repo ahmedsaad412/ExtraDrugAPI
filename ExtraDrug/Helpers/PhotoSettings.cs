@@ -20,6 +20,19 @@ public class PhotoSettings
     }
     public RepoResult<IFormFile> ValidateFile(IFormFile file)
     {
-        return new RepoResult<IFormFile> { Data= file };
+        var errors = new List<string>();
+
+        if (file.Length == 0)
+            errors.Add("File Can't be empty");
+        if (IsValidSize(file.Length))
+            errors.Add("File size exeeded the limit");
+        if (IsValidMIME(Path.GetExtension(file.FileName)))
+            errors.Add("File Type Not Accepted");
+
+        if (errors.Count > 0)
+        {
+            return new RepoResult<IFormFile> { Errors = errors  , Data = null , IsSucceeded = false};
+        }
+        return new RepoResult<IFormFile> { Data= file , Errors = null ,  IsSucceeded = true};
     }
 }

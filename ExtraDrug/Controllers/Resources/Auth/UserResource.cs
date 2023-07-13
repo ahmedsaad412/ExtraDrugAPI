@@ -6,6 +6,7 @@ namespace ExtraDrug.Controllers.Resources.Auth;
 public class UserResource
 {
     public string FirstName { get; set; } = "";
+    public string Id { get; set; } = string.Empty;
 
     public string LastName { get; set; } = "";
 
@@ -22,6 +23,7 @@ public class UserResource
     {
         return new UserResource()
         {
+            Id=user.Id,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,

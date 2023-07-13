@@ -42,9 +42,10 @@ public class Program
         builder.Services.AddScoped<IDrugCompanyRepo,DrugCompanyRepo>();
         builder.Services.AddScoped<IDrugRepo,DrugRepo>();
         builder.Services.AddScoped<IEffectiveMatrialRepo, EffectiveMatrialRepo>();
-        builder.Services.AddScoped<ResponceBuilder,ResponceBuilder>();
         builder.Services.AddScoped<IUserRepo, UserRepo>();
-        builder.Services.AddScoped(typeof(RepoResultBuilder<>), typeof(RepoResultBuilder<>));
+
+        builder.Services.AddScoped<ResponceBuilder>();
+        builder.Services.AddScoped(typeof(RepoResultBuilder<>));
        
 
 
