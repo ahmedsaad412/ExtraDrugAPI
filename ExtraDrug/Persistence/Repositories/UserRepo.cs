@@ -193,4 +193,25 @@ public class UserRepo : IUserRepo
         }
         return await GetById(userId);
     }
+
+    public async Task<RepoResult<ApplicationUser>> EditUser(string userId, ApplicationUser userNewData)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null) return _repoResultBuilder.Failuer(new[] { "User Not Found" });
+        
+        var userWithSameName =  await _userManager.Users.Where(u => u.Id != userId).SingleOrDefaultAsync( u => u.UserName == userNewData.UserName);
+        if(userWithSameName is not null) return _repoResultBuilder.Failuer(new[] { "UserName is Already Used." });
+
+        var userWithSamePhoneNumber = await _userManager.Users.Where(u => u.Id != userId).SingleOrDefaultAsync(u => u.PhoneNumber == userNewData.PhoneNumber);
+        if (userWithSameName is not null) return _repoResultBuilder.Failuer(new[] { "Phone Number is Already Used." });
+
+
+        user.FirstName = userNewData.FirstName;
+        user.LastName = userNewData.LastName;
+        user.PhoneNumber = userNewData.PhoneNumber;
+        user.UserName = userNewData.UserName;
+
+        await _ctx.SaveChangesAsync();
+        return await GetById(userId);
+    }
 }

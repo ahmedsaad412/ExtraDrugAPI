@@ -2,7 +2,6 @@
 using ExtraDrug.Controllers.Resources.Auth;
 using ExtraDrug.Controllers.Resources.UserDrugResources;
 using ExtraDrug.Core.Interfaces;
-using ExtraDrug.Core.Models;
 using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,10 +24,10 @@ public class UserController : ControllerBase
         _responceBuilder = responceBuilder;
         _userRepo = userRepo;
     }
+    #region User Drug endpoints
 
     [HttpPost("Drugs")]
     [Authorize(Roles = "User")]
-
     public async Task<IActionResult> AddUserDrug( [FromBody] SaveUserDrugResource udr )
     {
         string? userIdFromToken = User.FindFirstValue("uid");
@@ -51,7 +50,6 @@ public class UserController : ControllerBase
 
     [HttpPut("Drugs/{id:int}")]
     [Authorize(Roles ="User")]
-
     public async Task<IActionResult> UpdateUserDrug([FromRoute] int id,[FromBody] SaveUserDrugResource udr)
     {
         string? userIdFromToken = User.FindFirstValue("uid");
@@ -72,10 +70,8 @@ public class UserController : ControllerBase
             ));
     }
 
-
     [HttpDelete("Drugs/{id:int}")]
     [Authorize(Roles ="User")]
-
     public async Task<IActionResult> DeleteUserDrug([FromRoute] int id)
     {
         string? userIdFromToken = User.FindFirstValue("uid");
@@ -136,9 +132,12 @@ public class UserController : ControllerBase
             ));
     }
 
+    #endregion
+
+
+    #region User Endpoints
     [HttpGet("{id}")]  
     [Authorize(Roles ="User")]
-
     public async Task<IActionResult> GetUserById(string id)
     {
         var res = await _userRepo.GetById(id);
@@ -188,8 +187,6 @@ public class UserController : ControllerBase
     }
 
 
-
-
     [HttpPatch("photo")]
     [Authorize]
     public async Task<IActionResult> UploadUserPhoto([FromForm] IFormFile file)
@@ -232,6 +229,30 @@ public class UserController : ControllerBase
             ));
 
     }
+     
 
+    [HttpPut]
+    [Authorize]
+    public async Task<IActionResult> EditUser(EditUserResource edr)
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+
+        var res = await _userRepo.EditUser(userIdFromToken, edr.MapToModel());
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "Can't Update user Data.",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "User Data Updated",
+            data: UserResource.MapToResource(res.Data)
+            ));
+
+    }
+
+    #endregion
 }
 
