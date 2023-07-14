@@ -154,6 +154,26 @@ public class UserController : ControllerBase
     }
 
 
+    [HttpGet("Profile")]
+    [Authorize]
+    public async Task<IActionResult> GetUserProfile()
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+        var res = await _userRepo.GetById(userIdFromToken);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Not Found",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "User Data fetched",
+            data: UserResource.MapToResource(res.Data)
+           ));
+    }
+
 
 
     [Authorize(Roles ="Admin")]
