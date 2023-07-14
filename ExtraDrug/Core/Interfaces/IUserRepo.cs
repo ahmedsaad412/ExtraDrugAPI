@@ -14,4 +14,8 @@ public interface IUserRepo
     Task<RepoResult<ApplicationUser>> DeletePhotoFromUserDrug( string userId, int userDrugId, int photoId);
     
     Task<RepoResult<ApplicationUser>> UploadUserDrugPhoto(string userId, int userDrugId, IFormFile file);
+
+    Task<RepoResult<ApplicationUser>> UploadUserPhoto(string userId, IFormFile file );
+    Task<RepoResult<ApplicationUser>> ChangeUserPassword(string userId,string oldPassword , string newPassword);
+
 }

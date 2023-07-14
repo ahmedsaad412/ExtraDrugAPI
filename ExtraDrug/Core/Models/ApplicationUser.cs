@@ -16,6 +16,11 @@ public class ApplicationUser:IdentityUser
     public ICollection<UserDrug> UserDrugs { get; set; } = new List<UserDrug>();
     [NotMapped]
     public ICollection<string> Roles { get; set;  } = new List<string>();
+    [StringLength(256)]
+    public string? PhotoAPIPath { get; set; } 
+    [StringLength(512)]
+    public string? PhotoSysPath { get; set; } 
+    public bool IsDeleted { get; set; } = false;
 
 
 }

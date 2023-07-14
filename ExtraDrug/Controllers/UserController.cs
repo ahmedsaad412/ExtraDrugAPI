@@ -153,6 +153,9 @@ public class UserController : ControllerBase
            ));
     }
 
+
+
+
     [Authorize(Roles ="Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
@@ -164,6 +167,51 @@ public class UserController : ControllerBase
          ));
     }
 
+
+
+
+    [HttpPatch("photo")]
+    [Authorize]
+    public async Task<IActionResult> UploadUserPhoto([FromForm] IFormFile file)
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+
+        var res = await _userRepo.UploadUserPhoto(userIdFromToken, file);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Not Found.",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "photo Added",
+            data: UserResource.MapToResource(res.Data)
+            ));
+    }
+
+    [HttpPatch("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangeUserPassword(ChangePasswordResource chPass)
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+
+        var res = await _userRepo.ChangeUserPassword(userIdFromToken , chPass.OldPassword , chPass.NewPassword);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "Can't change user password.",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "Password Changed",
+            data: UserResource.MapToResource(res.Data)
+            ));
+
+    }
 
 }
 
