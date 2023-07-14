@@ -41,12 +41,26 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser([FromBody] LoginResource lr)
     {
-        var res = await _authService.LoginAsync(lr.MapToModel());
+        var res = await _authService.LoginAsync(lr.MapToModel() , IsAdmin:false);
         if (!res.IsSucceeded || res.Data is null)
         {
             return BadRequest(_responceBuilder.CreateFailure(message: "Authentication Error: Invalid User Data.", errors: res.Errors));
         }
         return Ok(_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res) , message: "LoggedIn Successfuly "));
+
+    }
+
+    [HttpPost("admin/login")]
+    public async Task<IActionResult> LoginAdmin([FromBody] LoginResource lr)
+    {
+        var res = await _authService.LoginAsync(lr.MapToModel(),IsAdmin:true);
+        if (!res.IsSucceeded || res.Data is null)
+        {
+            return BadRequest(_responceBuilder.CreateFailure(message: "Authentication Error: Invalid User Data.", errors: res.Errors));
+        }
+
+
+        return Ok(_responceBuilder.CreateSuccess(data: AuthResource.MapToResource(res), message: "LoggedIn Successfuly "));
 
     }
 

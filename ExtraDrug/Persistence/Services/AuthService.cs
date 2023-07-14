@@ -64,7 +64,7 @@ public class AuthService : IAuthService
         };
 
     }
-    public async Task<AuthResult> LoginAsync(ApplicationUser _userData)
+    public async Task<AuthResult> LoginAsync(ApplicationUser _userData, bool IsAdmin)
     {
         if (_userData is null ||_userData.Email is null || _userData.Password is null ) 
             return new AuthResult() { Errors = new string[] { "Invalid Email or Password" } };
@@ -74,6 +74,12 @@ public class AuthService : IAuthService
         var jwtToken = await CreateJwtToken(user);
         var rolesList = await _userManager.GetRolesAsync(user);
         var roles = rolesList.ToList();
+        if (IsAdmin)
+        {
+            if (!roles.Any(r => r.Equals("Admin"))){
+                return new AuthResult() { Errors = new string[] { "User Didn't have Admin Role." } };
+            }
+        }
         return new AuthResult() {
             IsSucceeded = true,
             Data = user,
