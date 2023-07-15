@@ -22,5 +22,8 @@ public class ApplicationUser:IdentityUser
     public string? PhotoSysPath { get; set; } 
     public bool IsDeleted { get; set; } = false;
 
+    public ICollection<DrugRequest> RequestsAsReciever { get; set; } = new List<DrugRequest>();
+    public ICollection<DrugRequest> RequestsAsDoner { get; set; } = new List<DrugRequest>();
+
 
 }

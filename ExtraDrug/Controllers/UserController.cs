@@ -26,6 +26,23 @@ public class UserController : ControllerBase
     }
     #region User Drug endpoints
 
+    [HttpGet("Drugs/{id:int}")]
+    [Authorize]
+    public async Task<IActionResult> GetUserDrugById([FromRoute] int id)
+    {
+        var res = await _userRepo.GetUserDrugById(id);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Drug Not Found.",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "User Drug Featched",
+            data: UserDrugResource.MapToResource(res.Data)
+            ));
+    }
+
+
     [HttpPost("Drugs")]
     [Authorize(Roles = "User")]
     public async Task<IActionResult> AddUserDrug( [FromBody] SaveUserDrugResource udr )

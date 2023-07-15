@@ -1,4 +1,5 @@
-﻿using ExtraDrug.Core.Models;
+﻿using ExtraDrug.Controllers.Resources.UserDrugResources;
+using ExtraDrug.Core.Models;
 
 namespace ExtraDrug.Core.Interfaces;
 
@@ -10,6 +11,8 @@ public interface IUserRepo
     Task<RepoResult<ApplicationUser>> AddDrugToUser(UserDrug ud);
     Task<RepoResult<ApplicationUser>> DeleteDrugFromUser(string userId, int userDrugId);
     Task<RepoResult<ApplicationUser>> UpdateDrugOwnedByUser(string userId, int userDrugId, UserDrug ud);
+
+    Task<RepoResult<UserDrug>> GetUserDrugById(int id);
 
     Task<RepoResult<ApplicationUser>> DeletePhotoFromUserDrug( string userId, int userDrugId, int photoId);
     

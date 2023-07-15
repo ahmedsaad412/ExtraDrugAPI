@@ -5,7 +5,6 @@ using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-
 namespace ExtraDrug.Persistence.Repositories;
 
 public class UserRepo : IUserRepo
@@ -14,6 +13,7 @@ public class UserRepo : IUserRepo
     private readonly AppDbContext _ctx;
     private readonly IDrugRepo _drugRepo;
     private readonly RepoResultBuilder<ApplicationUser> _repoResultBuilder;
+    private readonly RepoResultBuilder<UserDrug> _userDrugResultBuilder;
     private readonly PhotoSettings _photoSettings;
     private readonly IFileService _fileService;
     private readonly IHostEnvironment _host;
@@ -25,6 +25,7 @@ public class UserRepo : IUserRepo
         AppDbContext ctx , 
         IDrugRepo drugRepo ,
         RepoResultBuilder<ApplicationUser> repoResultBuilder ,
+        RepoResultBuilder<UserDrug> userDrugResultBuilder,
         IOptions<PhotoSettings> photoSettings,
         IFileService fileService, 
         IHostEnvironment host
@@ -35,6 +36,7 @@ public class UserRepo : IUserRepo
         _ctx = ctx;
         _drugRepo = drugRepo;
         _repoResultBuilder = repoResultBuilder;
+        _userDrugResultBuilder = userDrugResultBuilder;
         _photoSettings = photoSettings.Value;
         _fileService = fileService;
         _host = host;
@@ -80,7 +82,8 @@ public class UserRepo : IUserRepo
         if (!drugRes.IsSucceeded || drugRes.Data is null) return _repoResultBuilder.Failuer(new[] {"Drug Not Found"});
         var user = userRes.Data;
         ud.User = user;
-        ud.Drug = drugRes.Data; 
+        ud.Drug = drugRes.Data;
+        ud.CreatedAt = DateTime.UtcNow;
         user.UserDrugs.Add(ud);
         await _ctx.SaveChangesAsync();
         return _repoResultBuilder.Success(user);
@@ -213,5 +216,18 @@ public class UserRepo : IUserRepo
 
         await _ctx.SaveChangesAsync();
         return await GetById(userId);
+    }
+
+    public async Task<RepoResult<UserDrug>> GetUserDrugById(int id)
+    {
+        var userDrug = await _ctx.UsersDrugs
+            .Include(ud => ud.Drug).ThenInclude(d => d.Company)
+            .Include(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
+            .Include(ud => ud.Drug).ThenInclude(d => d.DrugType)
+            .Include(ud => ud.Photos)
+            .SingleOrDefaultAsync(ud => ud.Id == id);
+        if(userDrug is null)
+            return _userDrugResultBuilder.Failuer(new[] {"UserDrug Id Invalid, UserDrug NotFound."});
+        return _userDrugResultBuilder.Success(userDrug);
     }
 }

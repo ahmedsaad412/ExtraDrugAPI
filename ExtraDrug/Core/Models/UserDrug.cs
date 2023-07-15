@@ -11,5 +11,7 @@ public class UserDrug
     public int Quantity { get; set; }
     public double CoordsLongitude { get; set; } 
     public double CoordsLatitude { get; set; }
+    public  DateTime CreatedAt { get; set; }
     public ICollection<UserDrugPhoto> Photos { get; set; } = new List<UserDrugPhoto>();
+    public ICollection<RequestItem> RequestItems { get; set; } = new List<RequestItem>();
 }

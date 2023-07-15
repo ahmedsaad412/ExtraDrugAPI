@@ -12,6 +12,7 @@ public class UserDrugResource
     public int Quantity { get; set; }
     public double CoordsLongitude { get; set; }
     public double CoordsLatitude { get; set; }
+    public  DateTime CreatedAt { get; set; }
     public DrugResource? Drug { get; set; }
     public ICollection<UserDrugPhotoResource> Photos { get; set; } = new List<UserDrugPhotoResource>();
 
@@ -24,6 +25,7 @@ public class UserDrugResource
             CoordsLongitude = ud.CoordsLongitude,
             ExpireDate = ud.ExpireDate,
             Quantity = ud.Quantity,
+            CreatedAt = ud.CreatedAt,
             Drug = ud.Drug is not null ? DrugResource.MapToResource(ud.Drug) : null,
             Photos = ud.Photos.Select(p => UserDrugPhotoResource.MapToResource(p)).ToList()
         };
