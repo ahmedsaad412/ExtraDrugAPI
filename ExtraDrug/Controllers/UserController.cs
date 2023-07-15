@@ -61,7 +61,7 @@ public class UserController : ControllerBase
                 )) ;
         return Ok(_responceBuilder.CreateSuccess(
             message:"drug added",
-            data:UserResource.MapToResource(res.Data)
+            data:UserDrugResource.MapToResource(res.Data)
             ));
     }
 

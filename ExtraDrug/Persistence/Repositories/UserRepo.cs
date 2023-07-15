@@ -74,19 +74,19 @@ public class UserRepo : IUserRepo
         return new RepoResult<ApplicationUser>() { Errors = null, IsSucceeded = true, Data = user }; ;
     }
 
-    public async Task<RepoResult<ApplicationUser>> AddDrugToUser(UserDrug ud)
+    public async Task<RepoResult<UserDrug>> AddDrugToUser(UserDrug ud)
     {
         var userRes = await GetById(ud.UserId);
-        if (!userRes.IsSucceeded || userRes.Data is null) return userRes;
+        if (!userRes.IsSucceeded || userRes.Data is null) return _userDrugResultBuilder.Failuer(new[] { "User Not Found" });
         var drugRes = await _drugRepo.GetDrugById(ud.DrugId , includeData:true);
-        if (!drugRes.IsSucceeded || drugRes.Data is null) return _repoResultBuilder.Failuer(new[] {"Drug Not Found"});
+        if (!drugRes.IsSucceeded || drugRes.Data is null) return _userDrugResultBuilder.Failuer(new[] {"Drug Not Found"});
         var user = userRes.Data;
         ud.User = user;
         ud.Drug = drugRes.Data;
         ud.CreatedAt = DateTime.UtcNow;
         user.UserDrugs.Add(ud);
         await _ctx.SaveChangesAsync();
-        return _repoResultBuilder.Success(user);
+        return _userDrugResultBuilder.Success(ud);
     }
 
     public async Task<RepoResult<ApplicationUser>> DeleteDrugFromUser(string userId , int userDrugId)
