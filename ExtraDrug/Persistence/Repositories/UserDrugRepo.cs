@@ -77,7 +77,7 @@ public class UserDrugRepo:IUserDrugRepo
         }
         _ctx.Remove(ud_from_Db);
         await _ctx.SaveChangesAsync();
-        return await GetUserDrugById(userDrugId);
+        return _userDrugResultBuilder.Success(ud_from_Db);
 
     }
     public async Task<RepoResult<UserDrug>> UpdateDrugOwnedByUser(string userId, int userDrugId, UserDrug ud)
