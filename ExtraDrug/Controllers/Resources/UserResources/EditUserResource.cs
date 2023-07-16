@@ -1,7 +1,7 @@
 ﻿using ExtraDrug.Core.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace ExtraDrug.Controllers.Resources.UserDrugResources;
+namespace ExtraDrug.Controllers.Resources.UserResources;
 
 public class EditUserResource
 {

@@ -1,7 +1,7 @@
 ﻿using ExtraDrug.Controllers.Resources.UserDrugResources;
 using ExtraDrug.Core.Models;
 
-namespace ExtraDrug.Controllers.Resources.Auth;
+namespace ExtraDrug.Controllers.Resources.UserResources;
 
 public class UserResource
 {
@@ -26,7 +26,7 @@ public class UserResource
     {
         return new UserResource()
         {
-            Id=user.Id,
+            Id = user.Id,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
@@ -37,5 +37,5 @@ public class UserResource
             Drugs = user.UserDrugs.Select(UserDrugResource.MapToResource).ToList()
         };
     }
-    
+
 }

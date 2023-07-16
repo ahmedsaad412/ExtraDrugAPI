@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace ExtraDrug.Core.Models;
 
 public class RequestItem

@@ -36,13 +36,16 @@ public class Program
         builder.Services.Configure<PhotoSettings>(builder.Configuration.GetSection("PhotosSetting"));
 
         // Defined services 
-        builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IDrugCategoryRepo, DrugCategoryRepo>();
         builder.Services.AddScoped<IDrugTypeRepo,DrugTypeRepo>();
         builder.Services.AddScoped<IDrugCompanyRepo,DrugCompanyRepo>();
         builder.Services.AddScoped<IDrugRepo,DrugRepo>();
         builder.Services.AddScoped<IEffectiveMatrialRepo, EffectiveMatrialRepo>();
         builder.Services.AddScoped<IUserRepo, UserRepo>();
+        builder.Services.AddScoped<IUserDrugRepo, UserDrugRepo>();
+        builder.Services.AddScoped<IDrugRequestRepo , DrugRequestRepo>();
+
+        builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IFileService,FileService>();
 
 
