@@ -42,7 +42,7 @@ public class DrugRequestRepo : IDrugRequestRepo
         dr.LastUpdatedAt = DateTime.UtcNow;
         _ctx.DrugRequests.Add(dr);
         await _ctx.SaveChangesAsync();
-        return _repoResultBuilder.Success(dr);
+        return await GetDrugRequestById(dr.Id);
     }
 
     public async Task<RepoResult<DrugRequest>> GetDrugRequestById(int drugRequestId)
@@ -51,6 +51,7 @@ public class DrugRequestRepo : IDrugRequestRepo
             .Include(dr => dr.Receiver)
             .Include(dr => dr.RequestItems).ThenInclude(ri=> ri.UserDrug).ThenInclude(ud=> ud.Drug)
             .Include(dr => dr.RequestItems).ThenInclude(ri=> ri.UserDrug).ThenInclude(ud=> ud.Photos)
+            .AsNoTracking()
             .SingleOrDefaultAsync(dr => dr.Id == drugRequestId);
         if (dr is null) 
             return _repoResultBuilder.Failuer(new[] {"Drug Request Not Found. Invalid Id"});
@@ -63,9 +64,9 @@ public class DrugRequestRepo : IDrugRequestRepo
 
     public async Task<RepoResult<DrugRequest>> UpdateDrugRequestState(string userId, int drugRequestId, RequestState newState)
     {
-        var res = await GetDrugRequestById(drugRequestId);
-        if (!res.IsSucceeded || res.Data is null) return res;
-        var dr = res.Data;
+        var dr = await _ctx.DrugRequests.SingleOrDefaultAsync(dr => dr.Id == drugRequestId);
+
+        if (dr is null) return _repoResultBuilder.Failuer(new[] { "Drug Request Donor Not Found" });
         if (!dr.ReceiverId.Equals(userId) && !dr.DonorId.Equals(userId)) return _repoResultBuilder.Failuer(new[] {"User havn't permission to change state of the request."});
 
         if(newState == RequestState.Accepted && !dr.DonorId.Equals(userId))
@@ -79,7 +80,9 @@ public class DrugRequestRepo : IDrugRequestRepo
         dr.State = newState;
         dr.LastUpdatedAt = DateTime.UtcNow;
         await _ctx.SaveChangesAsync();
-        return _repoResultBuilder.Success(dr);
+      
+
+        return await GetDrugRequestById(drugRequestId);
     }
 
     public async Task<RepoResult<ICollection<DrugRequest>>> GetAllUsersRequests(string userId, bool IsDonor)
