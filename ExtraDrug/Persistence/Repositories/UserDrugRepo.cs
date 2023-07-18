@@ -135,4 +135,14 @@ public class UserDrugRepo:IUserDrugRepo
         return await GetUserDrugById(userDrugId);
     }
 
+    public async Task<RepoResult<ICollection<UserDrug>>> GetAllUserDrugs()
+    {
+        var userDrug = await _ctx.UsersDrugs
+            .Include(ud => ud.Drug).ThenInclude(d => d.Company)
+            .Include(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
+            .Include(ud => ud.Drug).ThenInclude(d => d.DrugType)
+            .Include(ud => ud.Photos).ToListAsync();
+        return new RepoResult<ICollection<UserDrug>>() {Data = userDrug , Errors=null , IsSucceeded=true };
+    }
+
 }

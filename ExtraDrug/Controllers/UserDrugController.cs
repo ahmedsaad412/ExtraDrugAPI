@@ -26,6 +26,23 @@ public class UserDrugController : ControllerBase
 
     #region User Drug endpoints
 
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetAllUserDrugs()
+    {
+        var res = await _userDrugRepo.GetAllUserDrugs();
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Drug Not Found.",
+                    errors: res.Errors
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "all Users Drugs Featched",
+            data: res.Data.Select(UserDrugResource.MapToResource).ToList()
+            )) ;
+    }
+
+
     [HttpGet("{id:int}")]
     [Authorize]
     public async Task<IActionResult> GetUserDrugById([FromRoute] int id)

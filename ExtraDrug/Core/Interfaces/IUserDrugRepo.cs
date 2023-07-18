@@ -11,4 +11,6 @@ public interface IUserDrugRepo
     Task<RepoResult<UserDrug>> DeletePhotoFromUserDrug(string userId, int userDrugId, int photoId);
     Task<RepoResult<UserDrug>> UploadUserDrugPhoto(string userId, int userDrugId, IFormFile file);
 
+    Task<RepoResult<ICollection<UserDrug>>> GetAllUserDrugs();
+
 }
