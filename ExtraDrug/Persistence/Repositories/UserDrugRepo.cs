@@ -141,7 +141,9 @@ public class UserDrugRepo:IUserDrugRepo
             .Include(ud => ud.Drug).ThenInclude(d => d.Company)
             .Include(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
             .Include(ud => ud.Drug).ThenInclude(d => d.DrugType)
-            .Include(ud => ud.Photos).ToListAsync();
+            .Include(ud => ud.Photos)
+            .Where(ud => ud.Drug.IsTradingPermitted && ud.ExpireDate > DateTime.UtcNow)
+            .ToListAsync();
         return new RepoResult<ICollection<UserDrug>>() {Data = userDrug , Errors=null , IsSucceeded=true };
     }
 

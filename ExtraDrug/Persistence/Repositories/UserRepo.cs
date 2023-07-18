@@ -125,7 +125,7 @@ public class UserRepo : IUserRepo
 
         userDrugs = userDrugs.Select(ud =>
             {
-               var usedQuantity =  ud.RequestItems.Where(ri => ri.DrugRequest.State == RequestState.Accepted || ri.DrugRequest.State == RequestState.Accepted)
+               var usedQuantity =  ud.RequestItems.Where(ri => ri.DrugRequest.State == RequestState.Accepted || ri.DrugRequest.State == RequestState.Recieved)
                 .Aggregate(0,(acc , ri)=> acc+ri.Quantity);
                 ud.Quantity -= usedQuantity; 
                 return ud;
