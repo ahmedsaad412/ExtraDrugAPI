@@ -42,11 +42,54 @@ public class DrugRequestController : ControllerBase
                 ));
 
         return Ok(_responceBuilder.CreateSuccess(
-            message: "drug added",
+            message: "drug request added",
             data: DrugRequestResource.MapToResource(res.Data)
             ));
 
     }
+
+    [HttpGet("as_donor")]
+    public async Task<IActionResult> GetAllUsersRequestsAsDonor()
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+
+        var res = await _drugRequestRepo.GetAllUsersRequests(userIdFromToken, IsDonor: true);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message:  "Can't Fetch Requests.",
+                    errors: res.Errors
+                ));
+
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "drug requests Fetched",
+            data: res.Data.Select(DrugRequestResource.MapToResource)
+            ));
+    }
+    [HttpGet("as_reciever")]
+    public async Task<IActionResult> GetAllUsersRequestsAsReciever()
+    {
+        string? userIdFromToken = User.FindFirstValue("uid");
+
+        if (userIdFromToken is null)
+            return Forbid();
+
+        var res = await _drugRequestRepo.GetAllUsersRequests(userIdFromToken, IsDonor: false);
+        if (!res.IsSucceeded || res.Data is null)
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "Can't Fetch Requests.",
+                    errors: res.Errors
+                ));
+
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "drug requests Fetched",
+            data: res.Data.Select(DrugRequestResource.MapToResource)
+            ));
+    }
+
+
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetRequestById([FromRoute]int id)
@@ -124,12 +167,4 @@ public class DrugRequestController : ControllerBase
             data: DrugRequestResource.MapToResource(res.Data)
         ));
     }
-
-    //[HttpPatch("{id:int}/items")]
-    //public  Task<IActionResult> EditRequestItems([FromRoute] int id)
-    //{
-
-    //    return Ok();
-    //}
-
 }

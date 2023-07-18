@@ -22,7 +22,7 @@ public class DrugRequestRepo : IDrugRequestRepo
     }
     public async Task<RepoResult<DrugRequest>> AddDrugRequest(string userId,  DrugRequest dr)
     {
-        var recieverRes = await _userRepo.GetById(userId);
+        var recieverRes = await _userRepo.GetByIdWithoutDate(userId);
         if (!recieverRes.IsSucceeded || recieverRes.Data is null) return _repoResultBuilder.Failuer(new[] { "Applicant User NotFound" });
         dr.Receiver = recieverRes.Data;
 
@@ -49,7 +49,8 @@ public class DrugRequestRepo : IDrugRequestRepo
     {
         var dr = await _ctx.DrugRequests
             .Include(dr => dr.Receiver)
-            .Include(dr => dr.RequestItems)
+            .Include(dr => dr.RequestItems).ThenInclude(ri=> ri.UserDrug).ThenInclude(ud=> ud.Drug)
+            .Include(dr => dr.RequestItems).ThenInclude(ri=> ri.UserDrug).ThenInclude(ud=> ud.Photos)
             .SingleOrDefaultAsync(dr => dr.Id == drugRequestId);
         if (dr is null) 
             return _repoResultBuilder.Failuer(new[] {"Drug Request Not Found. Invalid Id"});
@@ -59,8 +60,6 @@ public class DrugRequestRepo : IDrugRequestRepo
         dr.Donor = res.Data;
         return _repoResultBuilder.Success(dr);
     }
-
-   
 
     public async Task<RepoResult<DrugRequest>> UpdateDrugRequestState(string userId, int drugRequestId, RequestState newState)
     {
@@ -82,6 +81,20 @@ public class DrugRequestRepo : IDrugRequestRepo
         await _ctx.SaveChangesAsync();
         return _repoResultBuilder.Success(dr);
     }
+
+    public async Task<RepoResult<ICollection<DrugRequest>>> GetAllUsersRequests(string userId, bool IsDonor)
+    {
+        var query  =  _ctx.DrugRequests.AsNoTracking().AsQueryable();
+        if (IsDonor) query = query.Where(dr => dr.DonorId == userId);
+        else query = query.Where(dr => dr.ReceiverId == userId);
+        query = query
+            .Include(dr => dr.Donor)
+            .Include(dr => dr.Receiver)
+            .Include(dr => dr.RequestItems).ThenInclude(ri => ri.UserDrug).ThenInclude(ud => ud.Drug)
+            .Include(dr => dr.RequestItems).ThenInclude(ri => ri.UserDrug).ThenInclude(ud => ud.Photos);
+        return new RepoResult<ICollection<DrugRequest>>() {Data = await query.ToListAsync() , Errors=null , IsSucceeded=true};
+    }
+
     public Task<RepoResult<DrugRequest>> UpdateDrugRequestItems(string userId, int drugRequestId, ICollection<RequestItem> items)
     {
         throw new NotImplementedException();

@@ -54,15 +54,14 @@ public class UserDrugRepo:IUserDrugRepo
     }
     public async Task<RepoResult<UserDrug>> AddDrugToUser(UserDrug ud)
     {
-        var userRes = await _userRepo.GetById(ud.UserId);
+        var userRes = await _userRepo.GetByIdWithoutDate(ud.UserId);
         if (!userRes.IsSucceeded || userRes.Data is null) return _userDrugResultBuilder.Failuer(new[] { "User Not Found" });
         var drugRes = await _drugRepo.GetDrugById(ud.DrugId, includeData: true);
         if (!drugRes.IsSucceeded || drugRes.Data is null) return _userDrugResultBuilder.Failuer(new[] { "Drug Not Found" });
-        var user = userRes.Data;
-        ud.User = user;
+        ud.UserId = ud.UserId;
         ud.Drug = drugRes.Data;
         ud.CreatedAt = DateTime.UtcNow;
-        user.UserDrugs.Add(ud);
+        _ctx.UsersDrugs.Add(ud);
         await _ctx.SaveChangesAsync();
         return _userDrugResultBuilder.Success(ud);
     }

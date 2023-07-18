@@ -47,13 +47,19 @@ public class UserRepo : IUserRepo
 
     public async Task<RepoResult<ApplicationUser>> GetById(string id)
     {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null) return _repoResultBuilder.Failuer(new[] { "User Not Found" });
+        var userRes = await GetByIdWithoutDate(id);
+        if (!userRes.IsSucceeded || userRes.Data == null) return userRes;
+        var user = userRes.Data;
         user.UserDrugs =  await GetUserDrugs(id);
         user.Roles = await _userManager.GetRolesAsync(user);
-        return new RepoResult<ApplicationUser>() { Errors = null, IsSucceeded = true, Data = user }; ;
+        return _repoResultBuilder.Success(user);
     }
-
+    public async Task<RepoResult<ApplicationUser>> GetByIdWithoutDate(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return _repoResultBuilder.Failuer(new[] { "User Not Found" });
+        return _repoResultBuilder.Success(user);
+    }
     public async Task<RepoResult<ApplicationUser>> UploadUserPhoto(string userId, IFormFile file)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -113,7 +119,7 @@ public class UserRepo : IUserRepo
 
     public async Task<ICollection<UserDrug>> GetUserDrugs(string userId)
     {
-        var userDrugs =await  _ctx.UsersDrugs
+        var userDrugs =await  _ctx.UsersDrugs.AsNoTracking()
             .Include(ud => ud.Drug).ThenInclude(d => d.Company)
             .Include(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
             .Include(ud => ud.Drug).ThenInclude(d => d.DrugType)
