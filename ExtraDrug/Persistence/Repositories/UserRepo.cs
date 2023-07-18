@@ -18,15 +18,13 @@ public class UserRepo : IUserRepo
     private readonly string USERS_PHOTOS_FOLDER = "Users";
 
 
-    public UserRepo(UserManager<ApplicationUser> userManager ,
+    public UserRepo(
+        UserManager<ApplicationUser> userManager ,
         AppDbContext ctx , 
-        IDrugRepo drugRepo ,
         RepoResultBuilder<ApplicationUser> repoResultBuilder ,
-        RepoResultBuilder<UserDrug> userDrugResultBuilder,
         IOptions<PhotoSettings> photoSettings,
         IFileService fileService, 
         IHostEnvironment host
-
         )
     {
         _userManager = userManager;

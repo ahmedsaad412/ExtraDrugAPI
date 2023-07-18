@@ -13,6 +13,8 @@ namespace ExtraDrug.Controllers;
 [ApiController]
 [ValidateModel]
 [ExceptionHandler]
+[Authorize]
+
 public class UserController : ControllerBase
 {
     private readonly ResponceBuilder _responceBuilder;
@@ -44,7 +46,6 @@ public class UserController : ControllerBase
 
 
     [HttpGet("Profile")]
-    [Authorize]
     public async Task<IActionResult> GetUserProfile()
     {
         string? userIdFromToken = User.FindFirstValue("uid");
@@ -65,7 +66,6 @@ public class UserController : ControllerBase
 
 
 
-    [Authorize(Roles ="Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
@@ -78,7 +78,6 @@ public class UserController : ControllerBase
 
 
     [HttpPatch("photo")]
-    [Authorize]
     public async Task<IActionResult> UploadUserPhoto([FromForm] IFormFile file)
     {
         string? userIdFromToken = User.FindFirstValue("uid");
@@ -99,7 +98,6 @@ public class UserController : ControllerBase
     }
 
     [HttpPatch("change-password")]
-    [Authorize]
     public async Task<IActionResult> ChangeUserPassword(ChangePasswordResource chPass)
     {
         string? userIdFromToken = User.FindFirstValue("uid");
@@ -122,7 +120,6 @@ public class UserController : ControllerBase
      
 
     [HttpPut]
-    [Authorize]
     public async Task<IActionResult> EditUser(EditUserResource edr)
     {
         string? userIdFromToken = User.FindFirstValue("uid");
