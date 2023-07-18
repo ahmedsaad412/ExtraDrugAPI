@@ -91,7 +91,8 @@ public class DrugRequestRepo : IDrugRequestRepo
             .Include(dr => dr.Donor)
             .Include(dr => dr.Receiver)
             .Include(dr => dr.RequestItems).ThenInclude(ri => ri.UserDrug).ThenInclude(ud => ud.Drug)
-            .Include(dr => dr.RequestItems).ThenInclude(ri => ri.UserDrug).ThenInclude(ud => ud.Photos);
+            .Include(dr => dr.RequestItems).ThenInclude(ri => ri.UserDrug).ThenInclude(ud => ud.Photos)
+            .OrderByDescending(dr => dr.LastUpdatedAt);
         return new RepoResult<ICollection<DrugRequest>>() {Data = await query.ToListAsync() , Errors=null , IsSucceeded=true};
     }
 
