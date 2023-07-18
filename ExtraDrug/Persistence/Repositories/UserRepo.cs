@@ -47,14 +47,9 @@ public class UserRepo : IUserRepo
 
     public async Task<RepoResult<ApplicationUser>> GetById(string id)
     {
-        var user = await _userManager.Users
-            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Drug).ThenInclude(d => d.Company)
-            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
-            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Drug).ThenInclude(d => d.DrugType)
-            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Drug).ThenInclude(d => d.EffectiveMatrials)
-            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Photos)
-            .SingleOrDefaultAsync(u => u.Id == id);
-        if (user == null) return _repoResultBuilder.Failuer(new[] { "User Not Found" });   
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return _repoResultBuilder.Failuer(new[] { "User Not Found" });
+        user.UserDrugs =  await GetUserDrugs(id);
         user.Roles = await _userManager.GetRolesAsync(user);
         return new RepoResult<ApplicationUser>() { Errors = null, IsSucceeded = true, Data = user }; ;
     }
@@ -114,6 +109,29 @@ public class UserRepo : IUserRepo
 
         await _ctx.SaveChangesAsync();
         return await GetById(userId);
+    }
+
+    public async Task<ICollection<UserDrug>> GetUserDrugs(string userId)
+    {
+        var userDrugs =await  _ctx.UsersDrugs
+            .Include(ud => ud.Drug).ThenInclude(d => d.Company)
+            .Include(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
+            .Include(ud => ud.Drug).ThenInclude(d => d.DrugType)
+            .Include(ud => ud.Drug).ThenInclude(d => d.EffectiveMatrials)
+            .Include(ud => ud.Photos)
+            .Where(ud => ud.UserId == userId && ud.ExpireDate > DateTime.UtcNow && ud.Drug.IsTradingPermitted ) 
+            .Include(ud => ud.RequestItems).ThenInclude(ri => ri.DrugRequest)
+            .ToListAsync();
+
+        userDrugs = userDrugs.Select(ud =>
+            {
+               var usedQuantity =  ud.RequestItems.Where(ri => ri.DrugRequest.State == RequestState.Accepted || ri.DrugRequest.State == RequestState.Accepted)
+                .Aggregate(0,(acc , ri)=> acc+ri.Quantity);
+                ud.Quantity -= usedQuantity; 
+                return ud;
+            }).Where(ud => ud.Quantity > 0)
+            .ToList();
+        return userDrugs;
     }
 
 }
