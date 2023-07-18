@@ -1,12 +1,13 @@
-﻿using ExtraDrug.Controllers.Resources.UserDrugResources;
+﻿using ExtraDrug.Controllers.Resources.DrugRequestResources;
+using ExtraDrug.Controllers.Resources.UserDrugResources;
 using ExtraDrug.Core.Models;
 
 namespace ExtraDrug.Controllers.Resources.UserResources;
 
 public class UserResource
 {
-    public string FirstName { get; set; } = "";
     public string Id { get; set; } = string.Empty;
+    public string FirstName { get; set; } = "";
 
     public string LastName { get; set; } = "";
 
@@ -22,6 +23,7 @@ public class UserResource
 
     public ICollection<UserDrugResource> Drugs { get; set; } = new List<UserDrugResource>();
 
+
     public static UserResource MapToResource(ApplicationUser user)
     {
         return new UserResource()
@@ -34,7 +36,7 @@ public class UserResource
             PhoneNumber = user.PhoneNumber,
             Photo = user.PhotoAPIPath is null ? "/images/avatar_user_img.jpg" : user.PhotoAPIPath,
             Roles = user.Roles,
-            Drugs = user.UserDrugs.Select(UserDrugResource.MapToResource).ToList()
+            Drugs = user.UserDrugs.Select(UserDrugResource.MapToResource).ToList(),            
         };
     }
 

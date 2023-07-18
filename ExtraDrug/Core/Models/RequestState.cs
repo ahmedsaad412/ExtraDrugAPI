@@ -5,5 +5,5 @@ public enum RequestState
     Pending,
     Canceled,
     Accepted,
-    Rejected,
+    Recieved,
 }

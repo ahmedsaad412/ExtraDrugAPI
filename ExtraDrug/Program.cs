@@ -50,6 +50,7 @@ public class Program
 
 
         builder.Services.AddScoped<ResponceBuilder>();
+        builder.Services.AddScoped<StateManager>();
         builder.Services.AddScoped(typeof(RepoResultBuilder<>));
        
 

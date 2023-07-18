@@ -49,22 +49,14 @@ public class UserRepo : IUserRepo
 
     public async Task<RepoResult<ApplicationUser>> GetById(string id)
     {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user == null ) return _repoResultBuilder.Failuer( new[] { "User Not Found" });
-        await _ctx.Entry(user)
-            .Collection(u => u.UserDrugs)
-            .Query()
-            .Include(u => u.Drug)
-                .ThenInclude(d => d.Company)
-            .Include(u => u.Drug)
-                .ThenInclude(d => d.DrugType)
-            .Include(u => u.Drug)
-                .ThenInclude(d => d.DrugCategory)
-            .Include(u => u.Drug)
-                .ThenInclude(d => d.EffectiveMatrials)
-            .Include(ud => ud.Photos)
-            .Where(u => u.ExpireDate >  DateTime.UtcNow  && u.Drug != null && u.Drug.IsTradingPermitted)
-            .LoadAsync();
+        var user = await _userManager.Users
+            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Drug).ThenInclude(d => d.Company)
+            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
+            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Drug).ThenInclude(d => d.DrugType)
+            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Drug).ThenInclude(d => d.EffectiveMatrials)
+            .Include(u => u.UserDrugs).ThenInclude(ud => ud.Photos)
+            .SingleOrDefaultAsync(u => u.Id == id);
+        if (user == null) return _repoResultBuilder.Failuer(new[] { "User Not Found" });   
         user.Roles = await _userManager.GetRolesAsync(user);
         return new RepoResult<ApplicationUser>() { Errors = null, IsSucceeded = true, Data = user }; ;
     }
