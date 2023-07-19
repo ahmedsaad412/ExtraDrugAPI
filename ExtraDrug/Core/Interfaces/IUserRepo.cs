@@ -4,9 +4,8 @@ using ExtraDrug.Core.Models;
 namespace ExtraDrug.Core.Interfaces;
 
 
-public interface IUserRepo
-{
-    Task<RepoResult<ApplicationUser>> GetById(string id);
+public interface IUserRepo { 
+    Task<RepoResult<ApplicationUser>> GetById(string id,bool withTracking);
     Task<RepoResult<ApplicationUser>> GetByIdWithoutDate(string id);
     Task<ICollection<ApplicationUser>> GetAll();
     Task<RepoResult<ApplicationUser>> UploadUserPhoto(string userId, IFormFile file );

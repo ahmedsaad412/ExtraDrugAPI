@@ -24,16 +24,20 @@ public class DrugRequestRepo : IDrugRequestRepo
     {
         var recieverRes = await _userRepo.GetByIdWithoutDate(userId);
         if (!recieverRes.IsSucceeded || recieverRes.Data is null) return _repoResultBuilder.Failuer(new[] { "Applicant User NotFound" });
-        dr.Receiver = recieverRes.Data;
+        //dr.Receiver = recieverRes.Data;
+        dr.ReceiverId = recieverRes.Data.Id;
 
-        var donorRes = await _userRepo.GetById(dr.DonorId);
+        var donorRes = await _userRepo.GetByIdWithoutDate(dr.DonorId);
         if (!donorRes.IsSucceeded || donorRes.Data is null) return _repoResultBuilder.Failuer(new[] { "Donor User NotFound" });
-        dr.Donor = donorRes.Data;
+        //dr.Donor = donorRes.Data;
+        //dr.DonorId = donorRes.Data.Id;
 
         foreach (var ri in dr.RequestItems)
         {
-            var userDrug = dr.Donor.UserDrugs.SingleOrDefault(ud => ud.Id == ri.UserDrugId);
-            if(userDrug is null ) return _repoResultBuilder.Failuer(new[] { "Donor Didn't have this Drug." });
+            var userDrug = _ctx.UsersDrugs.SingleOrDefault(ud => ud.Id == ri.UserDrugId);
+            if (userDrug is null) return _repoResultBuilder.Failuer(new[] { "can't find this userDrug" });
+
+            if (userDrug.UserId != dr.DonorId) return _repoResultBuilder.Failuer(new[] { "Donor Didn't Own this Drug." });
             if(userDrug.Quantity < ri.Quantity) return _repoResultBuilder.Failuer(new[] { "Donor Didn't have this Quantity of this Drug." });
         }
 
@@ -56,7 +60,7 @@ public class DrugRequestRepo : IDrugRequestRepo
         if (dr is null) 
             return _repoResultBuilder.Failuer(new[] {"Drug Request Not Found. Invalid Id"});
 
-        var res = await _userRepo.GetById(dr.DonorId);
+        var res = await _userRepo.GetById(dr.DonorId , withTracking:false);
         if(!res.IsSucceeded || res.Data is  null ) return _repoResultBuilder.Failuer(new[] { "Drug Request Donor Not Found" });
         dr.Donor = res.Data;
         return _repoResultBuilder.Success(dr);

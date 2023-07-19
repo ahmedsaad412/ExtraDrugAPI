@@ -32,7 +32,7 @@ public class UserController : ControllerBase
     [Authorize(Roles ="User")]
     public async Task<IActionResult> GetUserById(string id)
     {
-        var res = await _userRepo.GetById(id);
+        var res = await _userRepo.GetById(id, withTracking: false);
         if (!res.IsSucceeded || res.Data is null)
             return NotFound(_responceBuilder.CreateFailure(
                     message: "User Not Found",
@@ -52,7 +52,7 @@ public class UserController : ControllerBase
 
         if (userIdFromToken is null)
             return Forbid();
-        var res = await _userRepo.GetById(userIdFromToken);
+        var res = await _userRepo.GetById(userIdFromToken, withTracking: false);
         if (!res.IsSucceeded || res.Data is null)
             return NotFound(_responceBuilder.CreateFailure(
                     message: "User Not Found",

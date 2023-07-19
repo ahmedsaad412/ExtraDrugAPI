@@ -5,6 +5,7 @@ using ExtraDrug.Persistence.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
 namespace ExtraDrug.Persistence.Repositories;
 
 public class UserRepo : IUserRepo
@@ -45,12 +46,12 @@ public class UserRepo : IUserRepo
         return users;
     }
 
-    public async Task<RepoResult<ApplicationUser>> GetById(string id)
+    public async Task<RepoResult<ApplicationUser>> GetById(string id, bool withTracking)
     {
         var userRes = await GetByIdWithoutDate(id);
         if (!userRes.IsSucceeded || userRes.Data == null) return userRes;
         var user = userRes.Data;
-        user.UserDrugs =  await GetUserDrugs(id);
+        user.UserDrugs =  await GetUserDrugs(id ,withTracking);
         user.Roles = await _userManager.GetRolesAsync(user);
         return _repoResultBuilder.Success(user);
     }
@@ -81,7 +82,7 @@ public class UserRepo : IUserRepo
         user.PhotoAPIPath = $"/uploads/{USERS_PHOTOS_FOLDER}/{fileName}";
 
         await _ctx.SaveChangesAsync();  
-        return await GetById(userId);
+        return await GetById(userId ,withTracking:false);
     }
 
     public async Task<RepoResult<ApplicationUser>> ChangeUserPassword(string userId, string oldPassword, string newPassword)
@@ -93,7 +94,7 @@ public class UserRepo : IUserRepo
         {
             return _repoResultBuilder.Failuer(res.Errors.Select(e=>e.Description).ToList());
         }
-        return await GetById(userId);
+        return await GetById(userId, withTracking: false);
     }
 
     public async Task<RepoResult<ApplicationUser>> EditUser(string userId, ApplicationUser userNewData)
@@ -114,13 +115,16 @@ public class UserRepo : IUserRepo
         user.UserName = userNewData.UserName;
 
         await _ctx.SaveChangesAsync();
-        return await GetById(userId);
+        return await GetById(userId, withTracking: false);
     }
 
-    public async Task<ICollection<UserDrug>> GetUserDrugs(string userId)
+    public async Task<ICollection<UserDrug>> GetUserDrugs(string userId,bool withTracking)
     {
-        var userDrugs = await  _ctx.UsersDrugs.AsNoTracking()
-            .Include(ud => ud.Drug).ThenInclude(d => d.Company)
+        var userDrugsQuery =  _ctx.UsersDrugs.AsQueryable();
+            if (withTracking)
+            userDrugsQuery = userDrugsQuery.AsNoTracking();
+
+        var userDrugs = await userDrugsQuery.Include(ud => ud.Drug).ThenInclude(d => d.Company)
             .Include(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
             .Include(ud => ud.Drug).ThenInclude(d => d.DrugType)
             .Include(ud => ud.Drug).ThenInclude(d => d.EffectiveMatrials)
