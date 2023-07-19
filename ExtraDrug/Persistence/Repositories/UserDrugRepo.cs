@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace ExtraDrug.Persistence.Repositories;
 
-public class UserDrugRepo:IUserDrugRepo
+public class UserDrugRepo : IUserDrugRepo
 {
     private readonly AppDbContext _ctx;
     private readonly IDrugRepo _drugRepo;
@@ -16,8 +16,8 @@ public class UserDrugRepo:IUserDrugRepo
     private readonly PhotoSettings _photoSettings;
     private readonly IFileService _fileService;
     private readonly IHostEnvironment _host;
+    private readonly LocationHelper _locationHelper;
     private readonly string USERS_DRUGS_FOLDER = "Users_Drugs";
-
 
     public UserDrugRepo(
         AppDbContext ctx,
@@ -26,7 +26,8 @@ public class UserDrugRepo:IUserDrugRepo
         RepoResultBuilder<UserDrug> userDrugResultBuilder,
         IOptions<PhotoSettings> photoSettings,
         IFileService fileService,
-        IHostEnvironment host
+        IHostEnvironment host,
+        LocationHelper locationHelper
 
         )
     {
@@ -37,6 +38,7 @@ public class UserDrugRepo:IUserDrugRepo
         _photoSettings = photoSettings.Value;
         _fileService = fileService;
         _host = host;
+        _locationHelper = locationHelper;
     }
 
 
@@ -143,7 +145,28 @@ public class UserDrugRepo:IUserDrugRepo
             .Include(ud => ud.Photos)
             .Where(ud => ud.Drug.IsTradingPermitted && ud.ExpireDate > DateTime.UtcNow)
             .ToListAsync();
-        return new RepoResult<ICollection<UserDrug>>() {Data = userDrug , Errors=null , IsSucceeded=true };
+        return new RepoResult<ICollection<UserDrug>>() { Data = userDrug, Errors = null, IsSucceeded = true };
     }
 
+
+    public async Task<RepoResult<ICollection<UserDrug>>> GetAllUserDrugsOfaDrug(int drugId, double lat, double lon)
+    {
+        var userDrugs = await _ctx.UsersDrugs.AsNoTracking()
+            .Where(ud => ud.DrugId == drugId && ud.ExpireDate > DateTime.UtcNow && ud.Drug.IsTradingPermitted)
+            .Include(ud => ud.Photos)
+            .Include(ud => ud.User)
+            .Include(ud => ud.RequestItems).ThenInclude(ri => ri.DrugRequest)
+            .ToListAsync();
+        userDrugs = userDrugs.Select(ud =>
+        {
+            ud.Disatnce = _locationHelper.distance(lat1: lat, lat2: ud.CoordsLatitude, lon1: lon, lon2: ud.CoordsLongitude);
+            var usedQuantity = ud.RequestItems.Where(ri => ri.DrugRequest.State == RequestState.Accepted || ri.DrugRequest.State == RequestState.Recieved)
+             .Aggregate(0, (acc, ri) => acc + ri.Quantity);
+            ud.Quantity -= usedQuantity;
+            return ud;
+        }).Where(ud => ud.Quantity > 0)
+        .OrderBy(ud => ud.Disatnce).ThenBy(ud => ud.Quantity)
+            .ToList();
+        return new RepoResult<ICollection<UserDrug>>() { Data= userDrugs ,Errors = null , IsSucceeded = true };
+    }
 }

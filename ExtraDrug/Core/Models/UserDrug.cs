@@ -1,4 +1,6 @@
-﻿namespace ExtraDrug.Core.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ExtraDrug.Core.Models;
 
 public class UserDrug
 {
@@ -14,4 +16,6 @@ public class UserDrug
     public  DateTime CreatedAt { get; set; }
     public ICollection<UserDrugPhoto> Photos { get; set; } = new List<UserDrugPhoto>();
     public ICollection<RequestItem> RequestItems { get; set; } = new List<RequestItem>();
+    [NotMapped]
+    public double Disatnce { get; set; }
 }

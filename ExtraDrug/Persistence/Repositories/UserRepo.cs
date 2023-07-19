@@ -119,7 +119,7 @@ public class UserRepo : IUserRepo
 
     public async Task<ICollection<UserDrug>> GetUserDrugs(string userId)
     {
-        var userDrugs =await  _ctx.UsersDrugs.AsNoTracking()
+        var userDrugs = await  _ctx.UsersDrugs.AsNoTracking()
             .Include(ud => ud.Drug).ThenInclude(d => d.Company)
             .Include(ud => ud.Drug).ThenInclude(d => d.DrugCategory)
             .Include(ud => ud.Drug).ThenInclude(d => d.DrugType)

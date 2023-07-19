@@ -128,4 +128,6 @@ public class DrugRepo : IDrugRepo
         await _ctx.Entry(drug).Collection(d => d.EffectiveMatrials).LoadAsync();
         return _repoResultBuilder.Success(drug);
     }
+
+    
 }

@@ -12,4 +12,6 @@ public interface IUserDrugRepo
     Task<RepoResult<UserDrug>> UploadUserDrugPhoto(string userId, int userDrugId, IFormFile file);
     Task<RepoResult<ICollection<UserDrug>>> GetAllUserDrugs();
 
+    Task<RepoResult<ICollection<UserDrug>>> GetAllUserDrugsOfaDrug(int drugId, double lat, double lon);
+
 }

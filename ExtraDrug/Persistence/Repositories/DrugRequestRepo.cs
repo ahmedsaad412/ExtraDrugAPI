@@ -99,8 +99,4 @@ public class DrugRequestRepo : IDrugRequestRepo
         return new RepoResult<ICollection<DrugRequest>>() {Data = await query.ToListAsync() , Errors=null , IsSucceeded=true};
     }
 
-    public Task<RepoResult<DrugRequest>> UpdateDrugRequestItems(string userId, int drugRequestId, ICollection<RequestItem> items)
-    {
-        throw new NotImplementedException();
-    }
 }

@@ -17,6 +17,7 @@ public class UserDrugResource
     public string UserId { get; set; }
     public  DateTime CreatedAt { get; set; }
     public DrugResource? Drug { get; set; }
+    public double Distance { get; set; }
     public ICollection<UserDrugPhotoResource> Photos { get; set; } = new List<UserDrugPhotoResource>();
     public static UserDrugResource MapToResource(UserDrug ud)
     {
@@ -32,7 +33,8 @@ public class UserDrugResource
             Photos = ud.Photos.Count > 0 ? 
                 ud.Photos.Select(p => UserDrugPhotoResource.MapToResource(p)).ToList() :
                 new List<UserDrugPhotoResource>(){new UserDrugPhotoResource(){Id=0 , APIPath="/images/Drug.webp"}},
-            UserId = ud.UserId
+            UserId = ud.UserId,
+            Distance = ud.Disatnce
         };
     }
 

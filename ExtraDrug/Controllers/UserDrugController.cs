@@ -167,6 +167,22 @@ public class UserDrugController : ControllerBase
             ));
     }
 
+
+    [HttpGet("search")]
+    [Authorize]
+    public async Task<IActionResult> SearchByDrugId([FromQuery]int id, [FromQuery]double lat, [FromQuery] double lon )
+    {
+        var res = await _userDrugRepo.GetAllUserDrugsOfaDrug(id, lat, lon);
+        if (!res.IsSucceeded || res.Data is null || res.Data.Count == 0 )
+            return NotFound(_responceBuilder.CreateFailure(
+                    message: "User Drugs Not Found.",
+                    errors: null
+                ));
+        return Ok(_responceBuilder.CreateSuccess(
+            message: "User Drugs Fetched",
+            data: res.Data.Select(UserDrugResource.MapToResource)
+            ));
+    } 
     #endregion
 
 }
